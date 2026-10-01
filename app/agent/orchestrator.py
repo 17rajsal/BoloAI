@@ -26,8 +26,15 @@ class AgentOrchestrator:
     def respond(cls, session_id: str, text: str, turn_id: Optional[str] = None) -> Dict[str, Any]:
         session = get_session(session_id)
         normalized = " ".join(text.split()).casefold()
-        key = f"turn:{turn_id}" if turn_id else "text:" + sha256(normalized.encode()).hexdigest()
         with session.turn_lock:
+            preview = extract_context(text, session.context)
+            preview_intent, _, _ = detect_caller_intent(text, preview)
+            identity = {}
+            if preview_intent == "FILE_COMPLAINT":
+                identity = {"tracking_id": preview.get("tracking_id"), "phone": session.caller or preview.get("phone")}
+            elif preview_intent in {"SEND_SMS_LINK", "REQUEST_UPLOAD"}:
+                identity = {"phone": session.caller or preview.get("phone"), "state": preview.get("state")}
+            key = f"turn:{turn_id}" if turn_id else "text:" + sha256((normalized + json.dumps(identity, sort_keys=True)).encode()).hexdigest()
             if key in session.turn_results:
                 if session.turn_inputs[key] != normalized:
                     raise ValueError("turn_id was already used for a different request")
@@ -117,6 +124,8 @@ class AgentOrchestrator:
         session.set_status("verifying")
         try:
             verification = VerificationService.verify_tool_result(tool, result)
+            if not isinstance(verification, VerificationDetail):
+                raise ValueError("Invalid verification response")
         except Exception:
             verification = VerificationDetail(status=VerificationStatus.UNVERIFIED,
                 reason="Verification service unavailable", sources=[], confidence_label="Uncertain")
@@ -250,11 +259,8 @@ class AgentOrchestrator:
                 tools_used.append("get_weather")
                 add_event(session.id, "tool.result", {"tool": "get_weather", "result": res})
 
-                session.set_status("verifying")
-                verification = VerificationService.verify_tool_result("get_weather", res)
+                verification = cls._record_verification(session, "get_weather", res)
                 last_verification = verification
-                session.verification_results.append(verification.model_dump())
-                add_event(session.id, "verification.completed", verification.model_dump())
 
                 if res.get("ok"):
                     temp = res.get("current_temperature", "N/A")
@@ -291,11 +297,8 @@ class AgentOrchestrator:
                 tools_used.append("track_courier")
                 add_event(session.id, "tool.result", {"tool": "track_courier", "result": res})
 
-                session.set_status("verifying")
-                verification = VerificationService.verify_tool_result("track_courier", res)
+                verification = cls._record_verification(session, "track_courier", res)
                 last_verification = verification
-                session.verification_results.append(verification.model_dump())
-                add_event(session.id, "verification.completed", verification.model_dump())
 
                 if res.get("ok") is True:
                     session.read_results["track_courier"] = deepcopy(res)
@@ -387,11 +390,8 @@ class AgentOrchestrator:
                 tools_used.append("find_schemes")
                 add_event(session.id, "tool.result", {"tool": "find_schemes", "result": res})
 
-                session.set_status("verifying")
-                verification = VerificationService.verify_tool_result("find_schemes", res)
+                verification = cls._record_verification(session, "find_schemes", res)
                 last_verification = verification
-                session.verification_results.append(verification.model_dump())
-                add_event(session.id, "verification.completed", verification.model_dump())
 
                 matches = res.get("matches", []) if res.get("ok") is True else []
                 if matches:
@@ -420,11 +420,8 @@ class AgentOrchestrator:
                 tools_used.append("search_web")
                 add_event(session.id, "tool.result", {"tool": "search_web", "result": res})
 
-                session.set_status("verifying")
-                verification = VerificationService.verify_tool_result("search_web", res)
+                verification = cls._record_verification(session, "search_web", res)
                 last_verification = verification
-                session.verification_results.append(verification.model_dump())
-                add_event(session.id, "verification.completed", verification.model_dump())
 
                 if res.get("ok") is not True:
                     answer = "Live search seva se jankari nahi mil paayi. Is claim ko abhi verify nahi kar sakta."
@@ -449,11 +446,8 @@ class AgentOrchestrator:
             tools_used.append("search_web")
             add_event(session.id, "tool.result", {"tool": "search_web", "result": res})
 
-            session.set_status("verifying")
-            verification = VerificationService.verify_tool_result("search_web", res)
+            verification = cls._record_verification(session, "search_web", res)
             last_verification = verification
-            session.verification_results.append(verification.model_dump())
-            add_event(session.id, "verification.completed", verification.model_dump())
 
             if "पौधे" in text or "भोजन" in text or "photosynthesis" in lowered:
                 answer = "प्रकाश संश्लेषण (Photosynthesis): पौधे धूप, पानी और कार्बन डाइऑक्साइड की मदद से क्लोरोफिल द्वारा अपना भोजन बनाते हैं और ऑक्सीजन छोड़ते हैं।"

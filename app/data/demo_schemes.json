@@ -1,0 +1,30 @@
+[
+  {
+    "name": "DEMO Private Foundation Merit Scholarship",
+    "authority": "Demo Test Foundation (Mock / Unofficial)",
+    "state": "All-India",
+    "category": "Private Demo",
+    "eligibility": "DEMO ONLY: Mock criteria for general college students in engineering or science.",
+    "income_criteria": 300000.0,
+    "benefit": "DEMO ONLY: Simulated grant of ₹15,000/year (Not an official govt scheme)",
+    "application_process": "Demo portal submission for testing only.",
+    "required_documents": ["Demo ID Card", "Demo Marksheet"],
+    "official_url": "https://example.com/demo-scholarship",
+    "last_verified_date": "2026-01-01",
+    "source_type": "DEMO_DATA"
+  },
+  {
+    "name": "DEMO State Youth Stipend (Simulated)",
+    "authority": "Demo Regional Board (Mock)",
+    "state": "Uttar Pradesh",
+    "category": "Demo Support",
+    "eligibility": "DEMO ONLY: Mock criteria for diploma students.",
+    "income_criteria": 200000.0,
+    "benefit": "DEMO ONLY: Simulated stipend (For hackathon testing)",
+    "application_process": "Demo testing pipeline.",
+    "required_documents": ["Demo Domicile Proof"],
+    "official_url": "https://example.com/demo-youth",
+    "last_verified_date": "2026-01-01",
+    "source_type": "DEMO_DATA"
+  }
+]

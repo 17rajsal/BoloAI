@@ -1,0 +1,98 @@
+[
+  {
+    "name": "UP Post-Matric Scholarship & Fee Reimbursement",
+    "authority": "Social Welfare Department, Government of Uttar Pradesh",
+    "state": "Uttar Pradesh",
+    "category": "Higher Education",
+    "eligibility": "Students enrolled in Class 11, 12, Graduate, Postgraduate, Diploma, BTech, or Medical programs in UP recognized institutions.",
+    "income_criteria": 250000.0,
+    "benefit": "100% tuition fee reimbursement plus monthly maintenance allowance (up to ₹50,000/year depending on course).",
+    "application_process": "Online registration on UP Scholarship Portal -> Upload marksheet, income/caste certificate, fee receipt -> Institute verification -> DBT bank transfer.",
+    "required_documents": [
+      "Aadhaar Card",
+      "Income Certificate (under ₹2.5 Lakhs)",
+      "Caste Certificate (if applicable)",
+      "Domicile Certificate (Uttar Pradesh)",
+      "Fee Receipt & College Bonafide",
+      "Bank Account linked with Aadhaar (NPCI mapped)"
+    ],
+    "official_url": "https://scholarship.up.gov.in",
+    "last_verified_date": "2026-09-15",
+    "source_type": "VERIFIED_OFFICIAL"
+  },
+  {
+    "name": "Central Sector Scheme of Scholarships for College and University Students (CSSS)",
+    "authority": "Department of Higher Education, Ministry of Education, Govt of India",
+    "state": "All-India",
+    "category": "Higher Education",
+    "eligibility": "Students above 80th percentile in relevant stream in Class 12 board exams, pursuing regular degree courses (BTech, BSc, BA, MBBS).",
+    "income_criteria": 450000.0,
+    "benefit": "₹12,000 per annum for Graduation (first 3 years) and ₹20,000 per annum for Post-Graduation.",
+    "application_process": "Register via National Scholarship Portal (NSP) with Aadhaar and OTR -> Institute and State nodal verification -> Direct Benefit Transfer (DBT).",
+    "required_documents": [
+      "Class 12 Marksheet",
+      "Income Certificate (< ₹4.5 Lakhs)",
+      "Aadhaar Card",
+      "College Admission Proof",
+      "Bank Passbook"
+    ],
+    "official_url": "https://scholarships.gov.in",
+    "last_verified_date": "2026-09-20",
+    "source_type": "VERIFIED_OFFICIAL"
+  },
+  {
+    "name": "PM-Kisan Samman Nidhi (Pradhan Mantri Kisan Samman Nidhi)",
+    "authority": "Ministry of Agriculture and Farmers Welfare, Govt of India",
+    "state": "All-India",
+    "category": "Agriculture",
+    "eligibility": "All landholding farmer families with cultivable landholding in their names (subject to exclusion criteria).",
+    "income_criteria": null,
+    "benefit": "₹6,000 per year directly to bank account in 3 equal installments of ₹2,000 every 4 months via DBT.",
+    "application_process": "Online application on PM-KISAN portal or through CSC centers -> Land record validation -> e-KYC via Aadhaar OTP.",
+    "required_documents": [
+      "Aadhaar Card",
+      "Land Ownership Documents (Khasra/Khatauni)",
+      "Aadhaar-seeded Bank Account Details"
+    ],
+    "official_url": "https://pmkisan.gov.in",
+    "last_verified_date": "2026-09-10",
+    "source_type": "VERIFIED_OFFICIAL"
+  },
+  {
+    "name": "UP Chief Minister Abhyudaya Yojana (Free Coaching)",
+    "authority": "Social Welfare Department, Government of Uttar Pradesh",
+    "state": "Uttar Pradesh",
+    "category": "Competitive Exam Training",
+    "eligibility": "Students of Uttar Pradesh preparing for UPSC, UPPSC, JEE, NEET, NDA, CDS examinations.",
+    "income_criteria": 800000.0,
+    "benefit": "Free high-quality coaching by IAS/IPS officers and subject experts, physical and virtual classes, and study materials.",
+    "application_process": "Register online at abhyuday.up.gov.in -> Online eligibility test -> Seat allocation in district centers.",
+    "required_documents": [
+      "Domicile Certificate (UP)",
+      "Academic Marksheets",
+      "Aadhaar Card"
+    ],
+    "official_url": "https://abhyuday.up.gov.in",
+    "last_verified_date": "2026-08-30",
+    "source_type": "VERIFIED_OFFICIAL"
+  },
+  {
+    "name": "AICTE Pragati Scholarship Scheme for Girl Students",
+    "authority": "All India Council for Technical Education (AICTE)",
+    "state": "All-India",
+    "category": "Technical Education",
+    "eligibility": "Female students admitted to 1st year of Degree/Diploma program in an AICTE approved institution (max 2 girls per family).",
+    "income_criteria": 800000.0,
+    "benefit": "₹50,000 per annum for every year of study towards college fees, computer, books, and stationeries.",
+    "application_process": "Submit application on National Scholarship Portal (NSP) -> Verification by AICTE recognized college.",
+    "required_documents": [
+      "Class 10 & 12 Marksheet",
+      "Annual Family Income Certificate (< ₹8 Lakhs)",
+      "Admission Letter for BTech/Diploma",
+      "Aadhaar Card"
+    ],
+    "official_url": "https://scholarships.gov.in",
+    "last_verified_date": "2026-09-01",
+    "source_type": "VERIFIED_OFFICIAL"
+  }
+]
