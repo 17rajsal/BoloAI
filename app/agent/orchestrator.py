@@ -110,11 +110,25 @@ class AgentOrchestrator:
 
         # 4. Route: Live OpenAI API or Deterministic Slot-Filling Engine
         if config.has_openai() and not config.DEMO_MODE:
+            prior_executions = set(session.action_executions)
             try:
                 return cls._respond_openai(session, text, intent, flags)
             except Exception as exc:
                 logger.warning(f"OpenAI call failed ({exc}); falling back to deterministic Master Agent engine.")
                 add_event(session_id, "error", {"module": "openai", "error": str(exc)})
+                executed = [outcome for key, outcome in session.action_executions.items() if key not in prior_executions]
+                if executed:
+                    # Never re-enter a write path after an outcome exists merely
+                    # because model generation or serialization failed afterward.
+                    answer = " ".join(action_answer(session, r["action"], r) for r in executed)
+                    session.history.append({"role": "assistant", "content": answer})
+                    add_event(session_id, "assistant.response", {"text": answer})
+                    session.set_status("speaking")
+                    return {"session_id": session_id, "answer": answer, "language": session.language,
+                            "tools_used": [r["action"] for r in executed], "verified": False,
+                            "action_completed": next((r for r in reversed(executed) if r["ok"]), None),
+                            "action_failed": next((r for r in reversed(executed) if not r["ok"]), None),
+                            "metadata": {"mode": "authoritative-action-recovery"}}
 
         # Demo & Deterministic Fallback Engine
         return cls._respond_deterministic(session, text, intent, flags)

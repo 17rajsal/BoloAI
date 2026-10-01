@@ -234,37 +234,55 @@ async def handle_document_upload(token: str, file: UploadFile = File(...)):
     add_event(session_id, "agent.plan", {
         "reason": "Multimodal document received. Extracting claims and checking authenticity.",
     })
-    analysis = await MultimodalAnalysisAdapter.analyze_document(
-        file_path=str(save_path),
-        mime_type=file.content_type,
-        caller_question="Verify whether this scheme poster is authentic.",
-    )
-    add_event(session_id, "attachment.analyzed", analysis)
+    try:
+        analysis = await MultimodalAnalysisAdapter.analyze_document(
+            file_path=str(save_path), mime_type=file.content_type,
+            caller_question="Verify whether this scheme poster is authentic.")
+    except Exception:
+        analysis = {"ok": False, "error": "Image analysis provider unavailable", "claims": []}
+    outcome = document_analysis_outcome(session_id, analysis)
+    return {**outcome, "token": token, "analysis": analysis}
 
-    # Search and Verification step on extracted claims
-    sch_name = analysis.get("scheme_name", "Scheme Poster")
-    add_event(session_id, "tool.call", {"tool": "search_web", "args": {"query": sch_name}})
-    search_res = execute_tool("search_web", {"query": sch_name})
-    add_event(session_id, "tool.result", {"tool": "search_web", "result": search_res})
 
-    verification = VerificationService.verify_tool_result("search_web", search_res)
-    add_event(session_id, "verification.completed", verification.model_dump())
-
-    answer = (
-        f"Maine aapka poster check kiya hai: '{sch_name}'. Ismein upfront fee maangi gayi hai jo fake scheme ka sanket hai. "
-        f"Official government portals par aisi koi certified scheme nahi mili."
-    )
-    s = ensure_session(session_id)
-    s.history.append({"role": "assistant", "content": answer})
+def document_analysis_outcome(session_id: str, analysis: dict) -> dict:
+    from .models import VerificationDetail, VerificationStatus
+    if not isinstance(analysis, dict) or analysis.get("ok") is not True:
+        add_event(session_id, "attachment.analysis_failed", {"error": "Image analysis unavailable"})
+        answer = "Photo receive ho gayi hai, lekin analysis seva fail hui. Maine photo ki jankari verify nahi ki hai."
+        verification = VerificationDetail(status=VerificationStatus.UNVERIFIED, sources=[],
+            reason="Image analysis failed; no contents or claims verified.", confidence_label="Failed")
+        ok = False
+    elif analysis.get("simulated") or analysis.get("demo"):
+        add_event(session_id, "attachment.analyzed", analysis)
+        answer = "Yeh synthetic demo analysis hai. Aapki actual photo ke contents analyze ya verify nahi hue hain."
+        verification = VerificationDetail(status=VerificationStatus.UNVERIFIED, sources=[],
+            reason="Synthetic demo analysis is not evidence about the uploaded document.", confidence_label="Demo / Unverified")
+        ok = True
+    else:
+        add_event(session_id, "attachment.analyzed", analysis)
+        query = analysis.get("scheme_name") or analysis.get("extracted_text")
+        if query:
+            add_event(session_id, "tool.call", {"tool": "search_web", "args": {"query": query}})
+            search_result = execute_tool("search_web", {"query": query})
+            add_event(session_id, "tool.result", {"tool": "search_web", "result": search_result})
+            verification = AgentOrchestrator._record_verification(ensure_session(session_id), "search_web", search_result)
+            ok = search_result.get("ok") is True
+            answer = "Photo se jankari nikali gayi hai. Search results se poster ke har claim ki pushti nahi hoti; official portal par jaanch zaroori hai." if ok else "Photo se jankari nikali gayi hai, lekin live verification seva fail hui. Poster ki authenticity verify nahi kar sakta."
+        else:
+            ok = False
+            verification = VerificationDetail(status=VerificationStatus.UNVERIFIED, sources=[],
+                reason="No usable claim extracted from image.", confidence_label="Uncertain")
+            answer = "Photo se verify karne layak jankari nahi mili. Poster ki authenticity verify nahi kar sakta."
+    # This endpoint verifies extracted facts only to the extent of its evidence,
+    # never treats a search hit as blanket authentication of the entire photo.
+    if not (isinstance(analysis, dict) and analysis.get("ok") is True and not analysis.get("simulated") and not analysis.get("demo") and (analysis.get("scheme_name") or analysis.get("extracted_text"))):
+        add_event(session_id, "verification.completed", verification.model_dump())
+    session = ensure_session(session_id)
+    session.history.append({"role": "assistant", "content": answer})
     add_event(session_id, "assistant.response", {"text": answer})
-
-    return {
-        "ok": True,
-        "message": "File received and analyzed.",
-        "token": token,
-        "analysis": analysis,
-        "verification": verification.model_dump(),
-    }
+    return {"ok": ok, "verified": False, "message": answer,
+            "simulated": bool(isinstance(analysis, dict) and (analysis.get("simulated") or analysis.get("demo"))),
+            "verification": verification.model_dump()}
 
 
 @app.post("/sessions")

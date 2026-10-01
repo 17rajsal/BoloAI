@@ -82,6 +82,8 @@ class MultimodalAnalysisAdapter:
 
         raw_json = response.choices[0].message.content or "{}"
         parsed = json.loads(raw_json)
+        if not isinstance(parsed, dict) or not any(parsed.get(k) for k in ("extracted_text", "claims", "scheme_name")):
+            return {"ok": False, "simulated": False, "claims": [], "error": "Image provider returned no usable analysis"}
 
         claims = parsed.get("claims", [])
         if not claims and parsed.get("scheme_name"):

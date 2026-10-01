@@ -90,7 +90,8 @@ def execute_action(session: Session, action: str, args: dict,
         result = normalize_action_result(action, raw)
         _ACTION_OBSERVATIONS[action] = {"state": "SIMULATED" if result["ok"] and result["simulated"] else "LIVE" if result["ok"] else "ERROR",
                                         "error": result.get("error")}
-        result.update(action_id=action_id, state="COMPLETED" if result["ok"] else "FAILED")
+        result.update(action_id=action_id, turn_id=session.active_turn_id,
+                      state="COMPLETED" if result["ok"] else "FAILED")
         add_event(session.id, "tool.result", {**base, "call_id": action_id, "tool": action, "result": deepcopy(result)})
         session.action_executions[key] = deepcopy(result)
         if result["ok"]:
@@ -111,7 +112,9 @@ def tracking_summary(session: Session, tracking_id: str | None = None) -> str:
     if not hub or not status:
         return ""
     prefix = "Demo tracking ke anusaar" if previous.get("simulated") or previous.get("demo") else "Tracking ke anusaar"
-    return f"{prefix} aapka parcel {hub} par hai; status {status}. "
+    tid = tracking_id or previous.get("tracking_id")
+    tid_part = f" ({tid})" if tid else ""
+    return f"{prefix} aapka parcel{tid_part} {hub} par hai; status {status}. "
 
 
 def action_answer(session: Session, action: str, result: dict) -> str:

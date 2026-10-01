@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BoloAI — AI for everyone through a normal phone call</title>
+  <title>BoloAI — Internet nahi? Bas call karo.</title>
   <link rel="stylesheet" href="/static/app.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -15,205 +15,35 @@
   <header class="header">
     <div class="header-container">
       <div class="brand-section">
-        <div class="logo-badge">बो</div>
-        <div class="brand-text">
-          <h1>BoloAI <span class="edition-badge">Bharat Edition</span></h1>
-          <p>AI access for everyone through a normal phone call</p>
-        </div>
+        <a href="#home" class="brand-link">
+          <div class="logo-badge">बो</div>
+          <div class="brand-text">
+            <span class="brand-name">BoloAI</span>
+            <span class="brand-edition">Bharat Edition</span>
+          </div>
+        </a>
       </div>
 
-      <div class="status-indicators">
-        <div id="status-gateway" class="status-pill">
-          <span class="status-dot"></span> <span class="status-label">Voice Gateway: MOCK</span>
-        </div>
-        <div id="status-speech" class="status-pill">
-          <span class="status-dot"></span> <span class="status-label">Speech: MOCK</span>
-        </div>
-        <div id="status-ai" class="status-pill">
-          <span class="status-dot"></span> <span class="status-label">AI Brain: FALLBACK</span>
-        </div>
-        <div id="status-search" class="status-pill">
-          <span class="status-dot"></span> <span class="status-label">Search: CURATED</span>
-        </div>
-        <div id="status-verify" class="status-pill ready">
-          <span class="status-dot"></span> <span class="status-label">Verification: READY</span>
-        </div>
-        <div id="status-sms" class="status-pill">
-          <span class="status-dot"></span> <span class="status-label">SMS: SIMULATED</span>
-        </div>
-        <button class="btn btn-secondary" onclick="toggleHistoryDrawer()" title="View past call logs">
-          <span>📜</span> Call History
+      <nav class="nav-menu">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#live-call" class="nav-link">Live Call</a>
+        <a href="#conversation" class="nav-link">Conversation</a>
+        <a href="#progress" class="nav-link">Progress</a>
+        <a href="#results" class="nav-link">Result</a>
+        <a href="#sources" class="nav-link">Sources</a>
+        <a href="#demo-section" class="nav-link">Try Demo</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="toggleHistoryDrawer()" title="View past call history">
+          <span>📜</span> <span class="hide-mobile">Call History</span>
         </button>
-        <button class="btn btn-primary" onclick="createNewSession()">
-          <span>📞</span> New Call
+        <button class="btn btn-primary" onclick="scrollToCall()">
+          <span>📞</span> Call BoloAI
         </button>
       </div>
     </div>
   </header>
-
-  <main class="main-wrapper">
-
-    <!-- Hero Banner -->
-    <section class="hero-banner">
-      <div class="hero-left">
-        <h2>"Internet nahi? <span class="hero-tagline">Bas call karo.</span>"</h2>
-        <p>Access AI, verified government schemes, live weather, and digital services from any mobile or feature phone in your language.</p>
-        <div class="hero-features">
-          <span class="feature-tag">✨ No smartphone needed</span>
-          <span class="feature-tag">📶 No mobile data required</span>
-          <span class="feature-tag">🇮🇳 Hindi, Hinglish & Regional</span>
-          <span class="feature-tag">🛡️ Verified official portals</span>
-          <span class="feature-tag">⚡ Live action execution</span>
-        </div>
-      </div>
-      <div class="hero-quick-actions">
-        <button class="btn btn-demo" onclick="runScenario('scholarship')">Run Scholarship Demo</button>
-        <button class="btn btn-secondary" onclick="runScenario('weather')">Run Weather Demo</button>
-      </div>
-    </section>
-
-    <!-- Live Call Card -->
-    <section class="call-card">
-      <div class="call-info-group">
-        <div class="call-avatar" id="call-avatar">📞</div>
-        <div class="call-meta">
-          <h3>
-            <span id="call-caller-id">+91 98*** **210</span>
-            <span id="call-status-pill" class="status-pill state-idle">IDLE</span>
-          </h3>
-          <p>Session: <code id="current-session-id" style="font-weight: 600; color: var(--text-main);">bolo-active</code> &bull; Duration: <span id="call-duration" style="font-weight: 600;">00:00</span> &bull; <span id="call-lang-badge">Hindi / Hinglish</span></p>
-        </div>
-      </div>
-
-      <!-- Animated Audio Waveform -->
-      <div id="call-waveform" class="waveform-container">
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-      </div>
-    </section>
-
-    <!-- Main Dashboard Grid -->
-    <div class="dashboard-grid">
-
-      <!-- Left Column: Live Agent Operational Trace -->
-      <section class="panel-card">
-        <div class="panel-header">
-          <h2>
-            <span>🔍</span> Live Agent Operational Trace
-          </h2>
-          <span style="font-size: 12px; color: var(--text-dim); font-weight: 500;">Judges Real-Time Inspection</span>
-        </div>
-        <div class="panel-body">
-          <div id="trace-container" class="trace-timeline">
-            <!-- Dynamic trace items populated by app.js -->
-          </div>
-        </div>
-      </section>
-
-      <!-- Right Column: Secondary Panels (Conversation, Sources, Context, Tools, Events) -->
-      <section class="panel-card">
-        <nav class="tabs-nav">
-          <button class="tab-btn active" data-tab="conversation" onclick="switchTab('conversation')">Conversation</button>
-          <button class="tab-btn" data-tab="sources" onclick="switchTab('sources')">Verified Sources</button>
-          <button class="tab-btn" data-tab="context" onclick="switchTab('context')">Context Memory</button>
-          <button class="tab-btn" data-tab="tools" onclick="switchTab('tools')">Tools & Actions</button>
-          <button class="tab-btn" data-tab="events" onclick="switchTab('events')">Audit Events</button>
-        </nav>
-
-        <div class="panel-body" style="background: #FAFAFA;">
-
-          <!-- Tab 1: Conversation -->
-          <div id="tab-conversation" class="tab-content" style="display: block;">
-            <div id="chat-container" class="chat-container">
-              <!-- Chat bubbles populated dynamically -->
-            </div>
-          </div>
-
-          <!-- Tab 2: Verified Sources & Trust -->
-          <div id="tab-sources" class="tab-content" style="display: none;">
-            <div id="sources-container">
-              <!-- Source Cards populated dynamically -->
-            </div>
-          </div>
-
-          <!-- Tab 3: Context Memory -->
-          <div id="tab-context" class="tab-content" style="display: none;">
-            <div id="context-container">
-              <!-- Context slot cards populated dynamically -->
-            </div>
-          </div>
-
-          <!-- Tab 4: Tools & Actions -->
-          <div id="tab-tools" class="tab-content" style="display: none;">
-            <div id="tools-container" class="tools-grid">
-              <!-- Tool capability cards -->
-            </div>
-          </div>
-
-          <!-- Tab 5: Audit Events -->
-          <div id="tab-events" class="tab-content" style="display: none;">
-            <div class="events-table-container">
-              <table class="events-table">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Event</th>
-                    <th>Payload</th>
-                  </tr>
-                </thead>
-                <tbody id="events-tbody">
-                  <!-- Event rows -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-    </div>
-
-    <!-- Demo Control & Testing Panel -->
-    <section class="demo-control-bar">
-      <div class="demo-bar-header">
-        <div class="demo-title">
-          <span>🎮</span> Hackathon Demo Controller & Caller Simulator
-        </div>
-        <div style="font-size: 12px; color: var(--text-dim);">
-          Test multi-turn reasoning, slot extraction, verification & live SMS
-        </div>
-      </div>
-
-      <div class="input-row">
-        <input id="user-input" class="input-box" type="text" placeholder="Type caller utterance (e.g. 'Main UP mein BTech 2nd year mein hoon', 'Delhi mein kal barish hogi?', 'Parcel ABC123 track karo')..." />
-        <button class="btn btn-primary" onclick="sendMessage()">
-          <span>🎙️</span> Send Turn
-        </button>
-      </div>
-
-      <div class="scenario-selector">
-        <span class="scenario-label">Quick 1-Click Stories:</span>
-        <button class="btn btn-demo" onclick="runScenario('scholarship')">
-          1. 🎓 UP Scholarship & Official SMS Action
-        </button>
-        <button class="btn btn-demo" onclick="runScenario('weather')">
-          2. 🌦️ Live Jaipur Weather (Open-Meteo)
-        </button>
-        <button class="btn btn-demo" onclick="runScenario('courier')">
-          3. 📦 Delayed Courier + File Complaint Action
-        </button>
-        <button class="btn btn-demo" onclick="runScenario('poster')">
-          4. 📸 Multimodal Poster Verification & Upload Handoff
-        </button>
-      </div>
-    </section>
-
-  </main>
 
   <!-- Slide-out Call History Drawer -->
   <div id="drawer-overlay" class="drawer-overlay" onclick="toggleHistoryDrawer()"></div>
@@ -228,6 +58,477 @@
       <!-- Session cards populated dynamically -->
     </div>
   </aside>
+
+  <main class="page-wrapper">
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 1: HOME / HERO -->
+    <!-- ========================================================================= -->
+    <section id="home" class="hero-section">
+      <div class="hero-grid">
+        
+        <div class="hero-content">
+          <div class="pill-badge hero-pill">
+            <span class="pill-spark">✨</span> AI for Everyone
+          </div>
+
+          <h1 class="hero-title">
+            Internet nahi?<br>
+            <span class="gradient-text">Bas call karo.</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            AI aur digital services ko kisi bhi normal phone se access karo — app ya mobile data ke bina.
+          </p>
+
+          <!-- 4 Core Feature Cards -->
+          <div class="feature-chips-grid">
+            <div class="feature-chip">
+              <div class="feature-chip-icon blue">📱</div>
+              <div class="feature-chip-text">
+                <strong>No App Required</strong>
+                <span>Normal phone call se use karo</span>
+              </div>
+            </div>
+
+            <div class="feature-chip">
+              <div class="feature-chip-icon purple">🇮🇳</div>
+              <div class="feature-chip-text">
+                <strong>Indian Languages</strong>
+                <span>Hindi, Hinglish aur regional bhasha</span>
+              </div>
+            </div>
+
+            <div class="feature-chip">
+              <div class="feature-chip-icon green">🛡️</div>
+              <div class="feature-chip-text">
+                <strong>Verified Information</strong>
+                <span>Trusted official sources se verified</span>
+              </div>
+            </div>
+
+            <div class="feature-chip">
+              <div class="feature-chip-icon orange">⚡</div>
+              <div class="feature-chip-text">
+                <strong>Digital Actions</strong>
+                <span>SMS links, parcel track aur complaints</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Actions -->
+          <div class="hero-cta-group">
+            <button class="btn btn-gradient btn-lg" onclick="scrollToCall()">
+              <span>📞</span> Call BoloAI
+            </button>
+            <a href="#how-it-works" class="btn btn-secondary btn-lg">
+              See How It Works ↓
+            </a>
+          </div>
+
+          <div class="hero-number-notice">
+            <span class="dot-pulse green"></span> Toll-free demo line: <strong id="public-phone-number">+91 80 0012 3456</strong> &bull; Or dial instantly in simulator below
+          </div>
+        </div>
+
+        <!-- Phone Mockup on Right -->
+        <div class="hero-visual">
+          <div class="phone-frame">
+            <div class="phone-speaker-notch"></div>
+            <div class="phone-screen">
+              <div class="mockup-call-status">
+                <span class="live-dot-pulse"></span>
+                <span>Active Call • 00:24</span>
+              </div>
+
+              <div class="mockup-avatar-wrap">
+                <div class="mockup-avatar">
+                  <div class="orb-pulse"></div>
+                  <span>बो</span>
+                </div>
+                <h3 class="mockup-contact-name">BoloAI Bharat Gateway</h3>
+                <p class="mockup-contact-sub">Hindi &bull; +91 98*** **210</p>
+              </div>
+
+              <!-- Animated Wave in Phone -->
+              <div class="mockup-soundwave active">
+                <div class="m-wave"></div>
+                <div class="m-wave"></div>
+                <div class="m-wave"></div>
+                <div class="m-wave"></div>
+                <div class="m-wave"></div>
+                <div class="m-wave"></div>
+                <div class="m-wave"></div>
+              </div>
+
+              <!-- Speech Transcript on Phone -->
+              <div class="mockup-message-bubble">
+                <span class="mockup-bubble-tag">BoloAI Voice</span>
+                "Jaipur mein kal mausam saaf rahega, tapmaan 32°C aur baarish ki sambhavna 0% hai."
+              </div>
+
+              <div class="mockup-footer-action">
+                <div class="mockup-btn-mute">🔇</div>
+                <div class="mockup-btn-end" onclick="createNewSession()">End</div>
+                <div class="mockup-btn-keypad">🔢</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 2: LIVE CALL -->
+    <!-- ========================================================================= -->
+    <section id="live-call" class="section-container live-call-section">
+      <div class="live-call-card">
+        
+        <!-- Live Call Top Bar -->
+        <div class="live-call-header">
+          <div class="live-call-status-badge">
+            <span class="dot-pulse green"></span>
+            <span id="call-status-pill" class="status-pill state-listening">Live Call</span>
+          </div>
+
+          <div class="live-call-meta-bar">
+            <span>⏱️ <strong id="call-duration">00:00</strong></span>
+            <span>📞 <strong id="call-caller-id">+91 98*** **210</strong></span>
+            <span>📍 <strong>Jaipur, Rajasthan</strong></span>
+            <span>🇮🇳 <strong id="call-lang-badge">Hindi / Hinglish</strong></span>
+            <span style="opacity: 0.7; font-size: 11px;">Session: <code id="current-session-id">bolo-active</code></span>
+          </div>
+        </div>
+
+        <!-- Central AI Orb -->
+        <div class="live-orb-wrapper">
+          <div id="ai-orb" class="ai-orb state-listening">
+            <div class="orb-core">
+              <div id="call-avatar" class="orb-symbol">🎧</div>
+            </div>
+            <div class="orb-ring ring-1"></div>
+            <div class="orb-ring ring-2"></div>
+            <div class="orb-ring ring-3"></div>
+          </div>
+
+          <div class="live-state-content">
+            <h2 id="live-state-title" class="live-state-title">Listening…</h2>
+            <p id="live-state-sub" class="live-state-sub">BoloAI is listening to you. Speak naturally.</p>
+          </div>
+
+          <!-- Animated Audio Waveform -->
+          <div id="call-waveform" class="waveform-container active">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+          </div>
+        </div>
+
+        <!-- Interactive Voice Simulator Bar -->
+        <div class="call-simulator-bar">
+          <div class="simulator-input-box">
+            <input id="user-input" type="text" placeholder="Type what caller says (e.g. 'Jaipur mein kal baarish hogi?', 'Scholarship schemes batao')..." />
+            <button class="btn btn-primary btn-round" onclick="sendMessage()">
+              <span>🎙️</span> Speak Turn
+            </button>
+          </div>
+
+          <div class="call-footer-actions">
+            <button class="btn btn-danger-soft" onclick="createNewSession()">
+              <span>⏹️</span> End Call
+            </button>
+            <button class="btn btn-secondary" onclick="createNewSession()">
+              <span>📞</span> New Call Session
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 3: CONVERSATION -->
+    <!-- ========================================================================= -->
+    <section id="conversation" class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">Conversation</h2>
+        <p class="section-subtitle">Your live voice conversation with BoloAI</p>
+      </div>
+
+      <div class="conversation-card">
+        <div id="chat-container" class="conversation-stream">
+          <!-- Dynamic conversation bubbles rendered by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 4: WHAT BOLOAI IS DOING (PROGRESS) -->
+    <!-- ========================================================================= -->
+    <section id="progress" class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">BoloAI is working on it</h2>
+        <p class="section-subtitle">Step by step operational progress</p>
+      </div>
+
+      <div class="progress-card">
+        <div id="trace-container" class="friendly-timeline">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 5: RESULT -->
+    <!-- ========================================================================= -->
+    <section id="results" class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">Result</h2>
+        <p class="section-subtitle">Information and action outcomes for your inquiry</p>
+      </div>
+
+      <div id="result-display-container">
+        <!-- Rendered dynamically by app.js based on weather, scholarship, courier, or poster -->
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 6: VERIFIED SOURCES -->
+    <!-- ========================================================================= -->
+    <section id="sources" class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">Where this information came from</h2>
+        <p class="section-subtitle">Verified authoritative sources used by BoloAI</p>
+      </div>
+
+      <div id="sources-container" class="sources-card-grid">
+        <!-- Populated dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 7: PHOTO / DOCUMENT UPLOAD -->
+    <!-- ========================================================================= -->
+    <section id="upload-section" class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">Send BoloAI a photo</h2>
+        <p class="section-subtitle">Poster, document ya image bhejiye. BoloAI ise check karega.</p>
+      </div>
+
+      <div class="upload-zone-card">
+        <div class="upload-icon-circle">📸</div>
+        <h3>Verify Poster or Paper Document</h3>
+        <p class="upload-desc">
+          Take a photo of any suspicious scheme poster or government notice. BoloAI checks for upfront fees, fake domains, and certified government records.
+        </p>
+
+        <div class="upload-btn-row">
+          <label class="btn btn-primary btn-lg upload-label">
+            <span>📸</span> Take Photo
+            <input type="file" accept="image/*" capture="environment" onchange="uploadFileFromPage(event)">
+          </label>
+          <label class="btn btn-secondary btn-lg upload-label">
+            <span>🖼️</span> Choose Photo
+            <input type="file" accept="image/jpeg,image/png,image/webp" onchange="uploadFileFromPage(event)">
+          </label>
+          <label class="btn btn-ghost btn-lg upload-label">
+            <span>📄</span> Upload PDF / Doc
+            <input type="file" accept="application/pdf,image/*" onchange="uploadFileFromPage(event)">
+          </label>
+        </div>
+
+        <div class="upload-format-tags">
+          <span>Supported: JPG, PNG, PDF</span> &bull; <span>Max size: 10MB</span> &bull; <span>Secure token handoff</span>
+        </div>
+
+        <div id="upload-success-panel" class="upload-success-card" style="display: none;">
+          <div class="success-check">✓</div>
+          <h4>Photo received</h4>
+          <p id="upload-success-details">Your document has been securely received.</p>
+          <div class="upload-return-pill">You can return to your call now. BoloAI is verifying the claims.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 8: TRY DEMO (1-CLICK EXAMPLES) -->
+    <!-- ========================================================================= -->
+    <section id="demo-section" class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">Try BoloAI</h2>
+        <p class="section-subtitle">Click any example to see how BoloAI works</p>
+      </div>
+
+      <div class="demo-cards-grid">
+        
+        <!-- Demo Card 1: Weather (Blue) -->
+        <div class="demo-card card-blue" onclick="runScenario('weather')">
+          <div class="demo-card-top">
+            <span class="demo-icon">☀️</span>
+            <span class="demo-tag">Weather Forecast</span>
+          </div>
+          <h3 class="demo-phrase">“Kal Jaipur mein baarish hogi?”</h3>
+          <p class="demo-desc">Live Open-Meteo meteorological inquiry with realtime rainfall percentage and temperature.</p>
+          <div class="demo-card-footer">
+            <span>Try this</span>
+            <span class="demo-arrow">→</span>
+          </div>
+        </div>
+
+        <!-- Demo Card 2: Scholarship (Pink) -->
+        <div class="demo-card card-pink" onclick="runScenario('scholarship')">
+          <div class="demo-card-top">
+            <span class="demo-icon">🎓</span>
+            <span class="demo-tag">Govt Scholarship</span>
+          </div>
+          <h3 class="demo-phrase">“UP mein BTech ke liye scholarship hai?”</h3>
+          <p class="demo-desc">Slot extraction, government criteria matching (.gov.in) and official link dispatch via SMS.</p>
+          <div class="demo-card-footer">
+            <span>Try this</span>
+            <span class="demo-arrow">→</span>
+          </div>
+        </div>
+
+        <!-- Demo Card 3: Courier (Orange) -->
+        <div class="demo-card card-orange" onclick="runScenario('courier')">
+          <div class="demo-card-top">
+            <span class="demo-icon">📦</span>
+            <span class="demo-tag">Courier & Complaint</span>
+          </div>
+          <h3 class="demo-phrase">“Mera parcel ABC123 kaha hai?”</h3>
+          <p class="demo-desc">Delayed consignment tracking and formal grievance redressal ticket generation with reference ID.</p>
+          <div class="demo-card-footer">
+            <span>Try this</span>
+            <span class="demo-arrow">→</span>
+          </div>
+        </div>
+
+        <!-- Demo Card 4: Poster Verification (Purple) -->
+        <div class="demo-card card-purple" onclick="runScenario('poster')">
+          <div class="demo-card-top">
+            <span class="demo-icon">🛡️</span>
+            <span class="demo-tag">Poster Verification</span>
+          </div>
+          <h3 class="demo-phrase">“Ye government scheme genuine hai?”</h3>
+          <p class="demo-desc">Multimodal document handoff, scam upfront fee detection and official portal verification.</p>
+          <div class="demo-card-footer">
+            <span>Try this</span>
+            <span class="demo-arrow">→</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 9: 6 PILLARS / HOW IT WORKS -->
+    <!-- ========================================================================= -->
+    <section id="how-it-works" class="section-container">
+      <div class="section-header">
+        <h2 class="section-title">Everything BoloAI Can Do</h2>
+        <p class="section-subtitle">Bridging digital services for every citizen through standard phone calls</p>
+      </div>
+
+      <div class="pillars-grid">
+        <div class="pillar-card">
+          <div class="pillar-icon">🗣️</div>
+          <h3>1. Ask Anything</h3>
+          <p>Speak naturally in Hindi, Hinglish, or English without typing, apps, or passwords.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-icon">🌦️</div>
+          <h3>2. Live Information</h3>
+          <p>Real-time weather, temperature, train delays, and consignment status updates.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-icon">🏛️</div>
+          <h3>3. Government Information</h3>
+          <p>Central & state welfare schemes, scholarships, eligibility, and citizen guidelines.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-icon">🛡️</div>
+          <h3>4. Verified Answers</h3>
+          <p>Factual claims cross-referenced against authoritative certified government portals (.gov.in).</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-icon">⚡</div>
+          <h3>5. Digital Actions</h3>
+          <p>Dispatches official portal links via SMS and registers service escalation complaints.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-icon">📸</div>
+          <h3>6. Photo / Document Check</h3>
+          <p>Caller sends photos of posters or flyers to detect fraudulent schemes and fake fees.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SYSTEM READINESS STATUS (DISCREET FOOTER DRAWER) -->
+    <!-- ========================================================================= -->
+    <section class="section-container system-status-section">
+      <div class="system-status-box">
+        <div class="status-box-header" onclick="toggleStatusDrawer()">
+          <div class="status-box-title">
+            <span>⚙️</span> Subsystem Readiness & Verification Status
+          </div>
+          <span id="status-toggle-icon">▼</span>
+        </div>
+
+        <div id="system-status-pills" class="status-pills-row" style="display: flex;">
+          <div id="status-gateway" class="status-pill">
+            <span class="status-dot"></span> <span class="status-label">Exotel: NOT_CONFIGURED</span>
+          </div>
+          <div id="status-speech" class="status-pill">
+            <span class="status-dot"></span> <span class="status-label">Speech: MOCK</span>
+          </div>
+          <div id="status-ai" class="status-pill">
+            <span class="status-dot"></span> <span class="status-label">AI Brain: FALLBACK</span>
+          </div>
+          <div id="status-search" class="status-pill">
+            <span class="status-dot"></span> <span class="status-label">Search: CURATED</span>
+          </div>
+          <div id="status-verify" class="status-pill ready">
+            <span class="status-dot"></span> <span class="status-label">Verification: READY</span>
+          </div>
+          <div id="status-sms" class="status-pill">
+            <span class="status-dot"></span> <span class="status-label">SMS: SIMULATED</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Clean Consumer Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <div class="logo-badge sm">बो</div>
+        <div>
+          <strong>BoloAI</strong> &bull; <em>“Internet nahi? Bas call karo.”</em>
+          <p style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">Voice-first digital services gateway built for Bharat.</p>
+        </div>
+      </div>
+      <div class="footer-right">
+        <span>Empowering 400M+ citizens without smartphones or data</span>
+      </div>
+    </div>
+  </footer>
 
   <!-- Notification Toast -->
   <div id="toast" class="toast">Action logged</div>
