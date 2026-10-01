@@ -1,0 +1,31 @@
+name: boloai
+services:
+  - name: boloai-web
+    type: web
+    git:
+      repository: github.com/17rajsal/BoloAI
+      branch: antigravity/final-demo
+      build_command: ""
+      run_command: uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+    ports:
+      - port: 8000
+        path: /
+    routes:
+      - path: /
+        port: 8000
+    health_checks:
+      - http:
+          path: /health
+          port: 8000
+        interval: 30
+        timeout: 5
+        unhealthy_threshold: 3
+        healthy_threshold: 1
+    scalings:
+      - min: 1
+        max: 1
+    env:
+      - key: DEMO_MODE
+        value: "false"
+      - key: HACKATHON_DEMO_MODE
+        value: "true"

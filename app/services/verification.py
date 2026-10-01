@@ -125,22 +125,43 @@ class VerificationService:
         if tool_name == "search_web":
             web_results = result.get("results", [])
             for r in web_results:
-                is_gov = any(dom in (r.get("url") or "") for dom in cls.OFFICIAL_DOMAINS)
+                domain = r.get("domain") or ""
+                url = r.get("url") or ""
+                if not domain and url:
+                    try:
+                        import urllib.parse
+                        domain = urllib.parse.urlparse(url).netloc.lower()
+                    except Exception:
+                        domain = ""
+                is_gov = bool(r.get("is_official")) or any(dom in url for dom in cls.OFFICIAL_DOMAINS) or any(dom in domain for dom in cls.OFFICIAL_DOMAINS)
                 sources.append({
-                    "name": r.get("source", "Web Source"),
+                    "name": r.get("source", domain or "Web Source"),
                     "title": r.get("title"),
-                    "url": r.get("url"),
+                    "domain": domain,
+                    "url": url,
                     "is_official": is_gov,
                 })
 
             has_gov = any(s.get("is_official") for s in sources)
+            query_ctx = (query_context or result.get("query") or "").lower()
+            is_scheme_or_gov_claim = any(w in query_ctx for w in ["scheme", "yojana", "scholarship", "claim", "government", "sarkari", "subsidy", "free money"])
+
             if has_gov:
                 return VerificationDetail(
                     status=VerificationStatus.VERIFIED_OFFICIAL,
                     sources=sources,
-                    reason="Found authoritative public/government web documentation.",
+                    reason="Found authoritative public/government web documentation (.gov.in / .nic.in).",
                     timestamp=ts,
-                    confidence_label="High",
+                    confidence_label="Authoritative" if any(".gov.in" in s.get("url", "") or ".nic.in" in s.get("url", "") for s in sources) else "High",
+                )
+            elif is_scheme_or_gov_claim:
+                # For government schemes, do not accept random blogs as verification.
+                return VerificationDetail(
+                    status=VerificationStatus.UNVERIFIED,
+                    sources=sources,
+                    reason="Government schemes require verification on official government portals (.gov.in / .nic.in). Random blogs or unofficial portals cannot verify official schemes.",
+                    timestamp=ts,
+                    confidence_label="Unverified",
                 )
             elif len(sources) >= 2:
                 return VerificationDetail(

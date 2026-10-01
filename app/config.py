@@ -28,8 +28,9 @@ SARVAM_TTS_URL: str = os.getenv("SARVAM_TTS_URL", "https://api.sarvam.ai/text-to
 SARVAM_DEFAULT_LANGUAGE: str = os.getenv("SARVAM_DEFAULT_LANGUAGE", "hi-IN")
 SARVAM_DEFAULT_SPEAKER: str = os.getenv("SARVAM_DEFAULT_SPEAKER", "meera")
 
-# Search & Upload Security
-SEARCH_API_KEY: str = os.getenv("SEARCH_API_KEY", "")
+# Search Configuration (Tavily Live Search)
+TAVILY_API_KEY: str = os.getenv("TAVILY_API_KEY", "")
+SEARCH_API_KEY: str = os.getenv("SEARCH_API_KEY", "") or TAVILY_API_KEY
 UPLOAD_TOKEN_SECRET: str = os.getenv("UPLOAD_TOKEN_SECRET", "")
 
 # SMS Provider Configuration
@@ -43,3 +44,7 @@ def has_sarvam() -> bool:
 
 def has_exotel() -> bool:
     return bool(EXOTEL_ACCOUNT_SID and EXOTEL_API_KEY and EXOTEL_API_TOKEN)
+
+def has_tavily() -> bool:
+    return bool(TAVILY_API_KEY and TAVILY_API_KEY.strip())
+

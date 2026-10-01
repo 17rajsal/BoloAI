@@ -89,7 +89,23 @@ def health():
     sarvam_tts_status = "LIVE" if config.has_sarvam() else "MOCK"
     speech_status = "LIVE" if config.has_sarvam() else "MOCK"
     ai_status = "LIVE" if (config.has_openai() and not config.DEMO_MODE) else "FALLBACK"
-    search_status = "LIVE" if bool(config.SEARCH_API_KEY) else "CURATED"
+    
+    if not config.has_tavily():
+        search_status = "CURATED"
+        search_provider = "Curated Verified Dataset (.gov.in)"
+        search_mode = "curated-dataset"
+    else:
+        from .tools.search import get_tavily_observation
+        obs = get_tavily_observation()
+        if obs.get("error"):
+            search_status = "ERROR"
+            search_provider = "Tavily Search API"
+            search_mode = "tavily-error"
+        else:
+            search_status = "LIVE"
+            search_provider = "Tavily Live Search API"
+            search_mode = "tavily-live"
+
     sms = sms_readiness()
     complaint = action_readiness("create_complaint", "SIMULATED")
     sms_status = sms["state"]
@@ -109,7 +125,9 @@ def health():
             "speech": speech_status,
             "ai_brain": ai_status,
             "search": search_status,
+            "weather": "LIVE",
             "sms": sms_status,
+            "courier": complaint["state"],
             "complaint": complaint["state"],
             "verification": verification_status,
         },
@@ -148,9 +166,11 @@ def health():
             },
             "search": {
                 "status": search_status,
-                "configured": True,
-                "ready": True,
-                "provider": "Live Search API" if bool(config.SEARCH_API_KEY) else "Curated Verified Dataset",
+                "configured": config.has_tavily(),
+                "ready": search_status in ("LIVE", "CURATED"),
+                "mode": search_mode,
+                "provider": search_provider,
+                "env_var": "TAVILY_API_KEY",
             },
             "sms": {
                 **sms,
@@ -158,6 +178,7 @@ def health():
                 "provider": "Simulated Cellular Dispatcher" if sms_status == "SIMULATED" else "Exotel SMS Gateway",
             },
             "complaint": {**complaint, "status": complaint["state"], "provider": "Simulated Courier Gateway"},
+            "courier": {**complaint, "status": complaint["state"], "provider": "Simulated Courier Gateway"},
             "weather": {
                 "status": "LIVE",
                 "configured": True,
@@ -418,8 +439,10 @@ def exotel_resolve(CallSid: Optional[str] = Query(default=None), CallFrom: Optio
     """
     call_id = CallSid or f"call-{now_iso().replace(':', '')[:15]}"
     s = ensure_session(call_id, caller=CallFrom)
-    add_event(call_id, "telephony.resolved", {"caller": CallFrom, "call_id": call_id})
-    return {"url": f"{config.PUBLIC_WS_BASE.rstrip('/')}/ws/exotel/{call_id}"}
+    ws_base = config.PUBLIC_WS_BASE.rstrip('/')
+    if "localhost" in ws_base and config.PUBLIC_BASE_URL and "localhost" not in config.PUBLIC_BASE_URL:
+        ws_base = config.PUBLIC_BASE_URL.replace("https://", "wss://").replace("http://", "ws://").rstrip("/")
+    return {"url": f"{ws_base}/ws/exotel/{call_id}"}
 
 
 @app.websocket("/ws/exotel/{call_id}")
