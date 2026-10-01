@@ -1,38 +1,28 @@
-# BoloAI
+# BoloAI 🇮🇳
+### Bharat's Voice-First Agentic AI Assistant
 
-**Internet nahi? Bas call karo.**
+**Internet nahi? Bas bolo.**
 
-An AI-powered digital services gateway built for Bharat, accessible from any mobile phone, feature phone, or landline.
+BoloAI is a voice-first Agentic AI assistant built for Bharat. Users can speak naturally in Hindi, Hinglish, or English, and BoloAI can understand the request, reason about it, use tools, verify information, perform permitted actions, remember conversational context, and reply back through voice and text.
 
----
+🌐 **Live Demo:** https://boloai-web.onrender.com/
 
-### Problem
+## What BoloAI can do
 
-People who cannot conveniently access apps, mobile data, or AI platforms can interact with digital services through an ordinary phone call and natural language. Over 400 million citizens across Bharat either do not use smartphones, lack consistent mobile internet connectivity, or face literacy and app navigation barriers. While LLMs are revolutionizing access to knowledge, they remain trapped behind touchscreens, apps, English interfaces, and data connections.
+- 🎙️ Voice-first Hindi, Hinglish & English interaction
+- 🧠 Conversational AI with multi-turn memory
+- 🌦️ Live weather information
+- 🎓 Government scheme and scholarship discovery
+- 🔎 Search and information verification
+- 📦 Service/courier workflow demonstrations
+- 📄 Image/document upload workflows
+- 🔊 Automatic spoken AI responses
+- 🛡️ Safety and confirmation guardrails
+- 🧰 Agentic tool selection and execution
 
-### What BoloAI does
+## Agentic Workflow
 
-```text
-Call
-→ Speak
-→ Understand
-→ Tool Use
-→ Verify
-→ Act
-→ Spoken Result
-```
-
-BoloAI is **not** simply “ChatGPT on a phone call.” It is a **digital-services gateway** that moves from *"AI gives information"* to *"AI takes verified action."*
-
-### Key capabilities
-
-- **Regular phone-call access:** Any feature phone, mobile, or landline via Exotel PSTN gateway.
-- **Indian-language speech:** Hindi, Hinglish, and Indian English using Sarvam AI (`saaras:v2` STT, `bulbul:v1` TTS).
-- **Turn detection & barge-in:** 16-bit 8000Hz PCM RMS energy thresholding ($RMS > 250$), 1.0s silence debounce, and immediate playback interruption ($RMS > 350$) with telephony clear frames.
-- **Live tools:** Open-Meteo Realtime Meteorological API, National Logistics Tracking, Curated Government Schemes.
-- **Source verification:** Cross-checks factual assertions and scheme criteria against authoritative `.gov.in` and `.nic.in` domains.
-- **Permitted actions:** SMS portal dispatch and formal grievance registration with voice confirmation and reference IDs.
-- **Optional photo/document handoff:** Secure short-lived `/u/{token}` links sent via SMS, allowing callers to upload posters or documents for multimodal claim extraction and anti-scam inspection.
+Understand → Reason → Plan → Use Tools → Verify → Act → Deliver
 
 ---
 
