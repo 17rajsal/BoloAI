@@ -283,18 +283,24 @@ class AgentOrchestrator:
 
                 if res.get("ok"):
                     temp = res.get("current_temperature", "N/A")
-                    cond = res.get("condition", "saaf")
+                    cond = res.get("condition", "clear")
                     rain_today = res.get("rain_probability_today", 0)
                     rain_tmrw = res.get("tomorrow_rain_probability", rain_today)
                     rain_parso = res.get("day_after_tomorrow_rain_probability", rain_tmrw)
                     loc = res.get("city", city)
 
                     if "parso" in lowered or "day after tomorrow" in lowered or "परसों" in text or "aur parso" in lowered:
-                        answer = f"{loc} mein parso baarish ki sambhavna lagbhag {rain_parso}% hai. Mausam aamtaur par {cond.lower()} rahega."
+                        if rain_parso is not None and rain_parso < 20:
+                            answer = f"{loc} mein parso baarish ki possibility kaafi kam hai (lagbhag {rain_parso}%). Weather mostly {cond.lower()} rehne ka chance hai."
+                        else:
+                            answer = f"{loc} mein parso baarish ki possibility lagbhag {rain_parso}% hai. Weather mostly {cond.lower()} rahega."
                     elif "kal" in lowered or "tomorrow" in lowered or "कल" in text:
-                        answer = f"{loc} mein kal baarish ki sambhavna lagbhag {rain_tmrw}% hai. Mausam {cond.lower()} rahega."
+                        if rain_tmrw is not None and rain_tmrw < 20:
+                            answer = f"{loc} mein kal baarish ki possibility kaafi kam hai (lagbhag {rain_tmrw}%). Weather mostly {cond.lower()} rehne ka chance hai."
+                        else:
+                            answer = f"{loc} mein kal baarish ki possibility lagbhag {rain_tmrw}% hai. Weather {cond.lower()} rahega."
                     else:
-                        answer = f"{loc} mein is waqt tapmaan {temp}°C hai aur mausam {cond.lower()} hai. Aaj baarish ki sambhavna {rain_today}% hai."
+                        answer = f"{loc} mein is waqt temperature {temp}°C hai aur weather mostly {cond.lower()} hai. Aaj baarish ka chance lagbhag {rain_today}% hai."
                 else:
                     answer = f"Maaf kijiye, mujhe {city} ka live mausam check karne mein dikkat aa rahi hai."
 
@@ -472,20 +478,30 @@ class AgentOrchestrator:
             last_verification = verification
 
             concept_type = flags.get("concept", "") or session.context.get("last_concept", "")
-            if "पौधे" in text or "भोजन" in text or "photosynthesis" in lowered or "प्रकाश संश्लेषण" in text or concept_type == "photosynthesis":
-                if any(w in lowered for w in ["example", "udaharan", "simple", "aur batao", "samjhao"]):
-                    answer = "Photosynthesis ka simple example: Jaise kitchen mein hum dhoop aur gas par khana banate hain, waise hi paudhe suraj ki dhoop aur paani use karke leaves mein bhojan banate hain aur taaza oxygen release karte hain."
+            is_example_req = any(w in lowered for w in ["example", "udaharan", "simple", "easy", "aur batao", "explain", "samjhao", "aur easy", "iska aur"])
+
+            if concept_type == "cloud_computing" or "cloud computing" in lowered:
+                if is_example_req:
+                    answer = "Bilkul. Netflix ko socho. Jaise aap film download kiye bina direct internet par stream karte hain, waise hi cloud computing me software aur files online chalti hain."
                 else:
-                    answer = "प्रकाश संश्लेषण (Photosynthesis): पौधे धूप, पानी और कार्बन डाइऑक्साइड की मदद से क्लोरोफिल द्वारा अपना भोजन बनाते हैं और ऑक्सीजन छोड़ते हैं।"
-            elif concept_type == "cloud_computing" or "cloud computing" in lowered:
-                answer = "Cloud computing ka matlab hai internet ke zariye computer files, storage aur programs access karna, bina apne phone ya laptop par download kiye. Jaise Google Drive ya online email storage."
+                    answer = "Cloud computing ka simple matlab hai internet ke through servers, storage aur software use karna, bina sab kuch apne computer par install kiye. Jaise Google Drive me files store karna cloud ka ek simple example hai."
             elif concept_type == "ai_agent" or "ai agent" in lowered or "agent kya hota" in lowered or "agent kya hai" in lowered:
-                answer = "AI agent ek intelligent computer program hota hai jo aapki baat samajh kar, situation ke hisaab se decision leta hai aur tools use karke aapka kaam poora karta hai — jaise BoloAI."
+                if is_example_req:
+                    answer = "Bilkul. Jaise ek personal assistant aapke kahne par flight book karta hai ya message bhejta hai, waise hi AI agent aapki voice command par online tools use karke kaam poora karta hai."
+                else:
+                    answer = "AI agent ek intelligent computer program hota hai jo aapki baat samajh kar, situation ke hisaab se decision leta hai aur tools use karke aapka kaam poora karta hai — jaise BoloAI."
+            elif "पौधे" in text or "भोजन" in text or "photosynthesis" in lowered or "प्रकाश संश्लेषण" in text or concept_type == "photosynthesis":
+                if is_example_req:
+                    answer = "Photosynthesis ka simple example: Jaise kitchen me hum gas aur paani use karke khana banate hain, waise hi paudhe sunlight aur hawa use karke leaves me apna khana banate hain aur fresh oxygen chhodte hain."
+                elif "पौधे" in text:
+                    answer = "प्रकाश संश्लेषण (Photosynthesis): पौधे धूप, पानी और कार्बन डाइऑक्साइड की मदद से क्लोरोफिल द्वारा अपना भोजन बनाते हैं और ऑक्सीजन छोड़ते हैं।"
+                else:
+                    answer = "Photosynthesis ka simple matlab hai paudhon ka khana banana. Paudhe sunlight, paani aur carbon dioxide use karke chlorophyll ke through apna khana banate hain aur fresh oxygen release karte hain."
             elif concept_type == "python_cpp" or ("python" in lowered and "c++" in lowered):
-                answer = "Python seekhne mein aasan aur rapid development ke liye use hoti hai, jabki C++ low-level system access aur high-speed execution performance ke liye popular hai."
+                answer = "Python seekhne me simple aur rapid development ke liye best hai, jabki C++ system programming aur high-speed performance ke liye popular hai."
             else:
                 top_hit = (res.get("results") or [{}])[0] if res.get("ok") is True else {}
-                answer = top_hit.get("snippet") or "Is concept ke detailed answer ke liye mera AI reasoning service abhi connected nahi hai. Weather, schemes, verification aur demo services main abhi bhi use kar sakta hoon."
+                answer = top_hit.get("snippet") or "Is question ke detailed answer ke liye mera AI reasoning service abhi connected nahi hai. Weather, schemes, verification aur demo services main abhi bhi use kar sakta hoon."
 
         # Case 8: General Knowledge
         elif intent == "GENERAL_INQUIRY":
@@ -494,13 +510,16 @@ class AgentOrchestrator:
             })
             sub_intent = flags.get("sub_intent", "")
             if sub_intent == "greeting" or any(w in lowered for w in ["hello", "hi", "namaste", "pranam", "kya haal", "kaise ho"]):
-                answer = "Namaste! Main BoloAI hoon. Aap weather, schemes, documents, general questions ya digital services ke baare mein pooch sakte hain. Main aapki kya sahayata kar sakta hoon?"
+                if any(w in lowered for w in ["kya haal", "kaise ho"]):
+                    answer = "Namaste! Main badhiya hoon. Boliye, aaj aapki kya help kar sakta hoon?"
+                else:
+                    answer = "Namaste! Main BoloAI hoon. Aap weather, government schemes, parcel tracking ya general sawal pooch sakte hain. Boliye, main aapki kya help karoon?"
             elif sub_intent == "capabilities" or any(w in lowered for w in ["kya kya kar sakte ho", "tum kya kar sakte ho", "aap kya kar sakte ho", "what can you do"]):
-                answer = "Main BoloAI hoon — Bharat ka voice-first digital assistant. Main live weather, government schemes, parcel tracking, documents verification aur aam sawalon ke seedhe jawab bina internet ke phone call par de sakta hoon."
+                answer = "Main BoloAI hoon — aapka voice-first digital assistant. Main live weather, government schemes, parcel tracking, documents verification aur normal questions ke jawab directly phone call par de sakta hoon."
             elif sub_intent == "gratitude" or any(w in lowered for w in ["thank you", "thanks", "shukriya", "dhanyawad", "dhanyavad"]):
                 answer = "Khushi hui help karke! Aur kuch poochna ho to boliye."
             elif sub_intent == "resume" or ("resume" in lowered and any(w in lowered for w in ["improve", "kaise", "banao", "tips", "better"])):
-                answer = "Resume behtar banane ke liye apne projects ke measurable outcomes likhein, target role se related skills highlight karein, aur layout clean aur 1 page mein rakhein."
+                answer = "Resume behtar banane ke liye apne projects ke measurable outcomes likhein, target job ke hisaab se skills highlight karein, aur layout clean aur concise rakhein."
             elif "gravity" in lowered:
                 answer = "Gravity is a fundamental natural force by which objects with mass attract each other, keeping planets in orbit."
             elif "2 plus 2" in lowered or "2+2" in lowered:

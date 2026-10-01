@@ -59,7 +59,9 @@ def detect_language(text: str) -> str:
     hindi_markers = [
         "mein", "kya", "hai", "hain", "karo", "batao", "hogi", "hoon", "mere", "meri",
         "chahiye", "kar do", "kaise", "kab", "kahan", "kaha", "kisko", "nahi", "nahin",
-        "baarish", "barish", "mausam", "bataiye", "kitna", "hota", "paas", "bhej"
+        "baarish", "barish", "mausam", "bataiye", "kitna", "hota", "paas", "bhej",
+        "iska", "aur", "do", "kuch", "tum", "aap", "kaun", "bhi", "ko", "se", "par",
+        "ke", "ki", "ka", "namaste", "bhai", "samjhao", "banao", "raha", "rahe", "rahi"
     ]
     matches = sum(1 for m in hindi_markers if re.search(rf"\b{m}\b", lowered))
     if matches >= 1:
@@ -141,6 +143,12 @@ def extract_context(text: str, current_context: Optional[Dict[str, Any]] = None)
     # 8. Concept tracking for follow-ups
     if any(w in lowered for w in ["photosynthesis", "prakash sanshleshan", "प्रकाश संश्लेषण", "पौधे", "भोजन कैसे"]):
         ctx["last_concept"] = "photosynthesis"
+    elif "cloud computing" in lowered:
+        ctx["last_concept"] = "cloud_computing"
+    elif any(w in lowered for w in ["ai agent", "agent kya hota", "agent kya hai"]):
+        ctx["last_concept"] = "ai_agent"
+    elif any(w in lowered for w in ["python", "c++"]):
+        ctx["last_concept"] = "python_cpp"
 
     return ctx
 
@@ -203,10 +211,8 @@ def detect_caller_intent(text: str, context: Dict[str, Any]) -> Tuple[str, Optio
         return ("SCHEME_SEARCH", f"Identify eligible government schemes in {st}", flags)
 
     # 8. Education / Explanation (Photosynthesis, Cloud computing, AI agents, Python vs C++, etc.)
-    is_photo_query = any(w in lowered for w in ["photosynthesis", "prakash sanshleshan", "प्रकाश संश्लेषण", "पौधे", "भोजन कैसे"]) or \
-                     (context.get("last_intent") == "CONCEPT_EXPLAIN" and any(w in lowered for w in ["example", "udaharan", "simple", "aur batao", "explain", "samjhao"]))
-    if is_photo_query:
-        return ("CONCEPT_EXPLAIN", "Explain scientific concept in simple words", flags)
+    is_concept_followup = (context.get("last_intent") == "CONCEPT_EXPLAIN" or bool(context.get("last_concept"))) and \
+                          any(w in lowered for w in ["example", "udaharan", "simple", "easy", "aur batao", "explain", "samjhao", "aur easy", "iska aur"])
 
     if "cloud computing" in lowered:
         return ("CONCEPT_EXPLAIN", "Explain cloud computing concept in simple words", {**flags, "concept": "cloud_computing"})
@@ -216,6 +222,11 @@ def detect_caller_intent(text: str, context: Dict[str, Any]) -> Tuple[str, Optio
 
     if any(w in lowered for w in ["python aur c++", "python vs c++", "python and c++", "python ya c++", "difference between python"]):
         return ("CONCEPT_EXPLAIN", "Compare Python and C++ concisely", {**flags, "concept": "python_cpp"})
+
+    is_photo_query = any(w in lowered for w in ["photosynthesis", "prakash sanshleshan", "प्रकाश संश्लेषण", "पौधे", "भोजन कैसे"])
+    if is_photo_query or is_concept_followup:
+        active_concept = context.get("last_concept", "photosynthesis")
+        return ("CONCEPT_EXPLAIN", f"Explain {active_concept} in simple words", {**flags, "concept": active_concept})
 
     # 9. Small Talk, Greetings & Capabilities
     if re.search(r"^(hello|hi|hey|namaste|pranam|ram ram|kya haal|kaise ho)\b", lowered) or \
