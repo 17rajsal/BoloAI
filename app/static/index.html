@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BoloAI — AI for everyone through a normal phone call</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="header">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="logo-badge">बो</div>
+        <div class="brand-text">
+          <h1>BoloAI <span class="edition-badge">Bharat Edition</span></h1>
+          <p>AI access for everyone through a normal phone call</p>
+        </div>
+      </div>
+
+      <div class="status-indicators">
+        <div id="status-gateway" class="status-pill">
+          <span class="status-dot"></span> <span class="status-label">Voice Gateway: MOCK</span>
+        </div>
+        <div id="status-speech" class="status-pill">
+          <span class="status-dot"></span> <span class="status-label">Speech: MOCK</span>
+        </div>
+        <div id="status-ai" class="status-pill">
+          <span class="status-dot"></span> <span class="status-label">AI Brain: FALLBACK</span>
+        </div>
+        <div id="status-search" class="status-pill">
+          <span class="status-dot"></span> <span class="status-label">Search: CURATED</span>
+        </div>
+        <div id="status-verify" class="status-pill ready">
+          <span class="status-dot"></span> <span class="status-label">Verification: READY</span>
+        </div>
+        <div id="status-sms" class="status-pill">
+          <span class="status-dot"></span> <span class="status-label">SMS: SIMULATED</span>
+        </div>
+        <button class="btn btn-secondary" onclick="toggleHistoryDrawer()" title="View past call logs">
+          <span>📜</span> Call History
+        </button>
+        <button class="btn btn-primary" onclick="createNewSession()">
+          <span>📞</span> New Call
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+      <div class="hero-left">
+        <h2>"Internet nahi? <span class="hero-tagline">Bas call karo.</span>"</h2>
+        <p>Access AI, verified government schemes, live weather, and digital services from any mobile or feature phone in your language.</p>
+        <div class="hero-features">
+          <span class="feature-tag">✨ No smartphone needed</span>
+          <span class="feature-tag">📶 No mobile data required</span>
+          <span class="feature-tag">🇮🇳 Hindi, Hinglish & Regional</span>
+          <span class="feature-tag">🛡️ Verified official portals</span>
+          <span class="feature-tag">⚡ Live action execution</span>
+        </div>
+      </div>
+      <div class="hero-quick-actions">
+        <button class="btn btn-demo" onclick="runScenario('scholarship')">Run Scholarship Demo</button>
+        <button class="btn btn-secondary" onclick="runScenario('weather')">Run Weather Demo</button>
+      </div>
+    </section>
+
+    <!-- Live Call Card -->
+    <section class="call-card">
+      <div class="call-info-group">
+        <div class="call-avatar" id="call-avatar">📞</div>
+        <div class="call-meta">
+          <h3>
+            <span id="call-caller-id">+91 98*** **210</span>
+            <span id="call-status-pill" class="status-pill state-idle">IDLE</span>
+          </h3>
+          <p>Session: <code id="current-session-id" style="font-weight: 600; color: var(--text-main);">bolo-active</code> &bull; Duration: <span id="call-duration" style="font-weight: 600;">00:00</span> &bull; <span id="call-lang-badge">Hindi / Hinglish</span></p>
+        </div>
+      </div>
+
+      <!-- Animated Audio Waveform -->
+      <div id="call-waveform" class="waveform-container">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+    </section>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+
+      <!-- Left Column: Live Agent Operational Trace -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <h2>
+            <span>🔍</span> Live Agent Operational Trace
+          </h2>
+          <span style="font-size: 12px; color: var(--text-dim); font-weight: 500;">Judges Real-Time Inspection</span>
+        </div>
+        <div class="panel-body">
+          <div id="trace-container" class="trace-timeline">
+            <!-- Dynamic trace items populated by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Secondary Panels (Conversation, Sources, Context, Tools, Events) -->
+      <section class="panel-card">
+        <nav class="tabs-nav">
+          <button class="tab-btn active" data-tab="conversation" onclick="switchTab('conversation')">Conversation</button>
+          <button class="tab-btn" data-tab="sources" onclick="switchTab('sources')">Verified Sources</button>
+          <button class="tab-btn" data-tab="context" onclick="switchTab('context')">Context Memory</button>
+          <button class="tab-btn" data-tab="tools" onclick="switchTab('tools')">Tools & Actions</button>
+          <button class="tab-btn" data-tab="events" onclick="switchTab('events')">Audit Events</button>
+        </nav>
+
+        <div class="panel-body" style="background: #FAFAFA;">
+
+          <!-- Tab 1: Conversation -->
+          <div id="tab-conversation" class="tab-content" style="display: block;">
+            <div id="chat-container" class="chat-container">
+              <!-- Chat bubbles populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Tab 2: Verified Sources & Trust -->
+          <div id="tab-sources" class="tab-content" style="display: none;">
+            <div id="sources-container">
+              <!-- Source Cards populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Tab 3: Context Memory -->
+          <div id="tab-context" class="tab-content" style="display: none;">
+            <div id="context-container">
+              <!-- Context slot cards populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Tab 4: Tools & Actions -->
+          <div id="tab-tools" class="tab-content" style="display: none;">
+            <div id="tools-container" class="tools-grid">
+              <!-- Tool capability cards -->
+            </div>
+          </div>
+
+          <!-- Tab 5: Audit Events -->
+          <div id="tab-events" class="tab-content" style="display: none;">
+            <div class="events-table-container">
+              <table class="events-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Event</th>
+                    <th>Payload</th>
+                  </tr>
+                </thead>
+                <tbody id="events-tbody">
+                  <!-- Event rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Demo Control & Testing Panel -->
+    <section class="demo-control-bar">
+      <div class="demo-bar-header">
+        <div class="demo-title">
+          <span>🎮</span> Hackathon Demo Controller & Caller Simulator
+        </div>
+        <div style="font-size: 12px; color: var(--text-dim);">
+          Test multi-turn reasoning, slot extraction, verification & live SMS
+        </div>
+      </div>
+
+      <div class="input-row">
+        <input id="user-input" class="input-box" type="text" placeholder="Type caller utterance (e.g. 'Main UP mein BTech 2nd year mein hoon', 'Delhi mein kal barish hogi?', 'Parcel ABC123 track karo')..." />
+        <button class="btn btn-primary" onclick="sendMessage()">
+          <span>🎙️</span> Send Turn
+        </button>
+      </div>
+
+      <div class="scenario-selector">
+        <span class="scenario-label">Quick 1-Click Stories:</span>
+        <button class="btn btn-demo" onclick="runScenario('scholarship')">
+          1. 🎓 UP Scholarship & Official SMS Action
+        </button>
+        <button class="btn btn-demo" onclick="runScenario('weather')">
+          2. 🌦️ Live Jaipur Weather (Open-Meteo)
+        </button>
+        <button class="btn btn-demo" onclick="runScenario('courier')">
+          3. 📦 Delayed Courier + File Complaint Action
+        </button>
+        <button class="btn btn-demo" onclick="runScenario('poster')">
+          4. 📸 Multimodal Poster Verification & Upload Handoff
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Slide-out Call History Drawer -->
+  <div id="drawer-overlay" class="drawer-overlay" onclick="toggleHistoryDrawer()"></div>
+  <aside id="history-drawer" class="history-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <span>📜</span> Recent Call Sessions
+      </div>
+      <button class="drawer-close-btn" onclick="toggleHistoryDrawer()">&times;</button>
+    </div>
+    <div class="drawer-body" id="history-drawer-list">
+      <!-- Session cards populated dynamically -->
+    </div>
+  </aside>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast">Action logged</div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
