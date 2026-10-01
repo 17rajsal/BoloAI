@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.git/
+.gitignore
+.env
+boloai-mvp.zip
+app/data/uploads/*
+!app/data/uploads/.gitkeep

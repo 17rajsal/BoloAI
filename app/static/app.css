@@ -450,6 +450,11 @@ body {
 .trace-badge.tool { background: var(--accent-blue-light); color: var(--accent-blue); }
 .trace-badge.verify { background: var(--accent-green-light); color: var(--accent-green); }
 .trace-badge.action { background: var(--accent-amber-light); color: var(--accent-amber); }
+.trace-badge.action-failed, .trace-icon.action-failed { background: #FEF2F2; color: #991B1B; }
+.trace-badge.action-simulated, .trace-icon.action-simulated { background: #FEF3C7; color: #92400E; }
+.trace-badge.action-completed, .trace-icon.action-completed { background: #ECFDF5; color: #047857; }
+.trace-badge.action-pending, .trace-icon.action-pending { background: #F1F5F9; color: #475569; }
+.status-pill.error { background: #FEF2F2; color: #991B1B; }
 .trace-badge.response { background: var(--accent-green-light); color: var(--accent-green); }
 
 .trace-title {

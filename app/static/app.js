@@ -43,6 +43,7 @@ function updatePill(elemId, text, isLive) {
   const label = el.querySelector('.status-label');
   if (label) label.textContent = text;
   el.classList.toggle('ready', Boolean(isLive));
+  el.classList.toggle('error', text.includes('ERROR'));
 }
 
 // 2. Session Management
@@ -130,6 +131,7 @@ async function refreshDashboard() {
 async function refreshDashboardSilently() {
   if (!activeSessionId) return;
   try {
+    await checkHealth();
     const res = await fetch(`/sessions/${activeSessionId}`);
     if (!res.ok) return;
     const session = await res.json();
@@ -297,7 +299,7 @@ function renderTrace(session) {
           <div class="trace-icon tool">⚙️</div>
           <div class="trace-content">
             <div class="trace-header">
-              <span class="trace-badge tool">Tool Selected</span>
+              <span class="trace-badge tool">${data.action ? 'Running' : 'Tool Selected'}</span>
               <span style="font-size: 11px; color: var(--text-dim);">${time}</span>
             </div>
             <div class="trace-title">Invoking: ${escapeHtml(data.tool || '')}</div>
@@ -339,19 +341,32 @@ function renderTrace(session) {
               </div>` : ''}
           </div>
         </div>`;
-    } else if (type === 'action.completed') {
+    } else if (type.startsWith('action.')) {
+      const simulated = data.simulated === true;
+      const state = type === 'action.failed' ? 'Failed' :
+        type === 'action.completed' ? (simulated ? 'Simulated' : 'Completed') :
+        type === 'action.confirmed' ? 'Confirmed' :
+        type === 'action.requested' ? 'Pending' :
+        type === 'action.reused' ? (simulated ? 'Simulated' : data.state === 'FAILED' ? 'Failed' : 'Completed') : 'Running';
+      const style = state === 'Failed' ? 'action-failed' : state === 'Simulated' ? 'action-simulated' :
+        state === 'Completed' ? 'action-completed' : 'action-pending';
+      const icon = state === 'Failed' ? '!' : state === 'Simulated' ? '◌' : state === 'Completed' ? '✓' : '…';
+      const actionNames = {send_sms: 'SMS', create_complaint: 'Complaint', request_document_upload: 'Upload link'};
+      const name = actionNames[data.action] || 'Action';
       html += `
         <div class="trace-item">
-          <div class="trace-icon action">⚡</div>
+          <div class="trace-icon ${style}">${icon}</div>
           <div class="trace-content">
             <div class="trace-header">
-              <span class="trace-badge action">Action Executed</span>
+              <span class="trace-badge ${style}">${state}</span>
               <span style="font-size: 11px; color: var(--text-dim);">${time}</span>
             </div>
-            <div class="trace-title">${escapeHtml(data.message || 'Action executed successfully.')}</div>
+            <div class="trace-title">${escapeHtml(`${name}: ${state.toLowerCase()}`)}</div>
+            ${state === 'Failed' ? `<div class="trace-body">${escapeHtml(data.error || 'Provider did not confirm success.')}</div>` : ''}
+            ${state === 'Simulated' ? '<div class="trace-body">Demo only. No real provider action occurred.</div>' : ''}
             <div class="trace-meta-grid">
-              <div><span class="meta-field-label">Reference ID</span><div class="meta-field-value" style="color: var(--primary);">${escapeHtml(data.reference_id || 'CONFIRMED')}</div></div>
-              <div><span class="meta-field-label">Status</span><div class="meta-field-value">${escapeHtml(data.status || 'SUCCESS')}</div></div>
+              <div><span class="meta-field-label">Reference ID</span><div class="meta-field-value">${escapeHtml(data.reference_id || 'Not supplied')}</div></div>
+              <div><span class="meta-field-label">Status</span><div class="meta-field-value">${escapeHtml(state)}</div></div>
             </div>
           </div>
         </div>`;

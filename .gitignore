@@ -1,0 +1,38 @@
+# Environments and credentials
+.env
+.env.local
+*.env
+
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Uploads and temporary runtime files
+app/data/uploads/*
+!app/data/uploads/.gitkeep
+
+# IDE and OS artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Legacy archive
+boloai-mvp.zip
+boloai-mvp/

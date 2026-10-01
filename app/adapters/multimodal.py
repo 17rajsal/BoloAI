@@ -30,7 +30,13 @@ class MultimodalAnalysisAdapter:
             try:
                 return await cls._analyze_with_openai_vision(path, mime_type, caller_question)
             except Exception as exc:
-                logger.warning(f"OpenAI Vision failed ({exc}); using structured fallback analysis.")
+                logger.warning("Live image analysis failed; no claims were extracted.")
+                return {"ok": False, "error": "Image analysis unavailable; no image contents verified",
+                        "claims": [], "simulated": False}
+
+        if not config.DEMO_MODE:
+            return {"ok": False, "error": "Image analysis provider unavailable or document type unsupported",
+                    "claims": [], "simulated": False}
 
         # Fallback / Demo Document Understanding Engine
         return cls._analyze_demo_document(path, caller_question)
@@ -106,6 +112,9 @@ class MultimodalAnalysisAdapter:
         return {
             "ok": True,
             "provider": "Curated Multimodal Extractor (Demo)",
+            "simulated": True,
+            "demo": True,
+            "notice": "Synthetic demo example; actual uploaded contents have not been analyzed.",
             "file_name": path.name,
             "extracted_text": (
                 "Pradhan Mantri Kanya Kalyan Yojna 2026. "
