@@ -1,0 +1,41 @@
+apiVersion: aikart.dev/v1
+kind: AgentManifest
+
+metadata:
+  name: boloai
+  displayName: "BoloAI"
+  description: "Agentic digital-services gateway for Bharat that understands requests, uses tools, verifies information and delivers actionable results."
+
+runtime:
+  type: docker
+  image: "ghcr.io/17rajsal/boloai:aikart-v1"
+  command: ["python", "aikart_runner.py"]
+
+resources:
+  cpu: 1
+  memoryMb: 1024
+  timeoutSeconds: 120
+
+inputs:
+  - name: query
+    label: "What do you want BoloAI to help you with?"
+    type: textarea
+    required: true
+
+  - name: language
+    label: "Preferred Language"
+    type: select
+    required: false
+    options:
+      - "Hindi"
+      - "Hinglish"
+      - "English"
+    default: "Hinglish"
+
+output:
+  format: markdown
+
+security:
+  networkEgress: allowlist
+  egressAllowlist:
+    - "api.open-meteo.com"

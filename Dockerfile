@@ -26,6 +26,7 @@ COPY tests/ ./tests/
 COPY scripts/ ./scripts/
 COPY pytest.ini .
 COPY .env.example .
+COPY aikart_runner.py .
 
 # Default port (supports Koyeb dynamic PORT assignment)
 ENV PORT=8000
