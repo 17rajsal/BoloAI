@@ -29,3 +29,5 @@ services:
         value: "false"
       - key: HACKATHON_DEMO_MODE
         value: "true"
+      - key: OPENAI_MODEL
+        value: "gpt-4o-mini"
