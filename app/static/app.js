@@ -5,6 +5,24 @@ let liveSocket = null;
 let callTimerInterval = null;
 let callSeconds = 0;
 
+// Browser Voice & Speech State
+let recognition = null;
+let isListening = false;
+let isSpeaking = false;
+let currentLanguage = 'hi-IN';
+let latestAssistantAnswer = '';
+let synthVoices = [];
+
+function loadVoices() {
+  if ('speechSynthesis' in window) {
+    synthVoices = window.speechSynthesis.getVoices();
+  }
+}
+if ('speechSynthesis' in window) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   await checkHealth();
   await loadRecentSessionOrCreate();
@@ -31,6 +49,8 @@ async function checkHealth() {
     updatePill('status-search', `Search: ${r.search || 'CURATED'}`, r.search === 'LIVE');
     updatePill('status-verify', `Verification: ${r.verification || 'READY'}`, r.verification === 'READY');
     updatePill('status-sms', `SMS: ${r.sms || 'SIMULATED'}`, r.sms === 'LIVE');
+    const voiceSupported = ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) && ('speechSynthesis' in window);
+    updatePill('status-browser-voice', `Browser Voice: ${voiceSupported ? 'READY' : 'UNAVAILABLE'}`, voiceSupported);
   } catch (err) {
     console.warn('Health check error:', err);
   }
@@ -140,94 +160,141 @@ async function refreshDashboardSilently() {
   } catch (e) {}
 }
 
-function renderCallCard(session) {
-  const callerEl = document.getElementById('call-caller-id');
+function setCallState(state, customTitle, customSub) {
   const statusPill = document.getElementById('call-status-pill');
   const avatarEl = document.getElementById('call-avatar');
   const waveform = document.getElementById('call-waveform');
   const orb = document.getElementById('ai-orb');
   const titleEl = document.getElementById('live-state-title');
   const subEl = document.getElementById('live-state-sub');
+  const micBtn = document.getElementById('main-mic-btn');
+  const micLabel = document.getElementById('mic-status-label');
+  const micIcon = document.getElementById('mic-icon');
 
-  if (session.caller) {
-    const raw = session.caller;
-    callerEl.textContent = raw.length > 7 ? raw.substring(0, 5) + '••••' + raw.substring(raw.length - 2) : raw;
+  if (statusPill) statusPill.className = 'status-pill';
+  if (orb) orb.className = 'ai-orb';
+  if (micBtn) micBtn.className = 'big-mic-button';
+
+  if (state === 'listening') {
+    if (statusPill) { statusPill.classList.add('state-listening'); statusPill.textContent = 'Listening…'; }
+    if (orb) orb.classList.add('state-listening');
+    if (micBtn) micBtn.classList.add('listening');
+    if (micIcon) micIcon.textContent = '⏹️';
+    if (micLabel) micLabel.textContent = 'Listening… (Speak now)';
+    if (titleEl) titleEl.textContent = customTitle || 'Listening…';
+    if (subEl) subEl.textContent = customSub || 'BoloAI is listening to you. Speak naturally in Hindi, Hinglish or English.';
+    if (avatarEl) avatarEl.textContent = '🎙️';
+    if (waveform) waveform.classList.add('active');
+  } else if (state === 'understanding') {
+    if (statusPill) { statusPill.classList.add('state-transcribing'); statusPill.textContent = 'Understanding…'; }
+    if (orb) orb.classList.add('state-transcribing');
+    if (micBtn) micBtn.classList.add('understanding');
+    if (micIcon) micIcon.textContent = '✍️';
+    if (micLabel) micLabel.textContent = 'Understanding your question…';
+    if (titleEl) titleEl.textContent = customTitle || 'Understanding…';
+    if (subEl) subEl.textContent = customSub || 'Transcribing and analyzing your utterance.';
+    if (avatarEl) avatarEl.textContent = '✍️';
+    if (waveform) waveform.classList.remove('active');
+  } else if (state === 'checking') {
+    if (statusPill) { statusPill.classList.add('state-thinking'); statusPill.textContent = 'Checking…'; }
+    if (orb) orb.classList.add('state-thinking');
+    if (micBtn) micBtn.classList.add('checking');
+    if (micIcon) micIcon.textContent = '🧠';
+    if (micLabel) micLabel.textContent = 'Checking verified records…';
+    if (titleEl) titleEl.textContent = customTitle || 'Checking…';
+    if (subEl) subEl.textContent = customSub || 'Searching verified sources and calculating answer.';
+    if (avatarEl) avatarEl.textContent = '🧠';
+    if (waveform) waveform.classList.remove('active');
+  } else if (state === 'speaking') {
+    if (statusPill) { statusPill.classList.add('state-speaking'); statusPill.textContent = 'Speaking…'; }
+    if (orb) orb.classList.add('state-speaking');
+    if (micBtn) micBtn.classList.add('speaking');
+    if (micIcon) micIcon.textContent = '🔊';
+    if (micLabel) micLabel.textContent = 'BoloAI is speaking… (Tap mic to interrupt)';
+    if (titleEl) titleEl.textContent = customTitle || 'Speaking…';
+    if (subEl) subEl.textContent = customSub || 'BoloAI is speaking aloud in your language.';
+    if (avatarEl) avatarEl.textContent = '🔊';
+    if (waveform) waveform.classList.add('active');
+  } else if (state === 'error') {
+    if (statusPill) { statusPill.classList.add('state-ended'); statusPill.textContent = 'Notice'; }
+    if (orb) orb.classList.add('state-ended');
+    if (micBtn) micBtn.classList.add('error');
+    if (micIcon) micIcon.textContent = '⚠️';
+    if (micLabel) micLabel.textContent = 'Tap to retry voice input';
+    if (titleEl) titleEl.textContent = customTitle || 'Voice Input Notice';
+    if (subEl) subEl.textContent = customSub || 'Check microphone permissions or type your question below.';
+    if (avatarEl) avatarEl.textContent = '⚠️';
+    if (waveform) waveform.classList.remove('active');
   } else {
-    callerEl.textContent = '+91 98*** **210';
+    // Ready
+    if (statusPill) { statusPill.classList.add('ready'); statusPill.textContent = 'Ready'; }
+    if (orb) orb.classList.add('state-idle');
+    if (micBtn) micBtn.classList.add('state-ready');
+    if (micIcon) micIcon.textContent = '🎙️';
+    if (micLabel) micLabel.textContent = 'Tap and speak';
+    if (titleEl) titleEl.textContent = 'Ready';
+    if (subEl) subEl.textContent = 'Tap the microphone or type below to speak with BoloAI.';
+    if (avatarEl) avatarEl.textContent = '🎧';
+    if (waveform) waveform.classList.remove('active');
+  }
+}
+
+function renderCallCard(session) {
+  const callerEl = document.getElementById('call-caller-id');
+  if (callerEl) {
+    if (session.caller) {
+      const raw = session.caller;
+      callerEl.textContent = raw.length > 7 ? raw.substring(0, 5) + '••••' + raw.substring(raw.length - 2) : raw;
+    } else {
+      callerEl.textContent = '+91 98*** **210';
+    }
   }
 
-  const rawStatus = (session.call_status || 'listening').toLowerCase();
-  statusPill.className = 'status-pill';
-  orb.className = 'ai-orb';
+  // Preserve active browser voice state
+  if (isSpeaking) {
+    setCallState('speaking');
+    return;
+  }
+  if (isListening) {
+    setCallState('listening');
+    return;
+  }
 
-  if (rawStatus === 'listening') {
-    statusPill.classList.add('state-listening');
-    statusPill.textContent = 'Listening…';
-    orb.classList.add('state-listening');
-    titleEl.textContent = 'Listening…';
-    subEl.textContent = 'BoloAI is listening to you. Speak naturally.';
-    avatarEl.textContent = '🎧';
-    waveform.classList.add('active');
-  } else if (rawStatus === 'transcribing') {
-    statusPill.classList.add('state-transcribing');
-    statusPill.textContent = 'Transcribing…';
-    orb.classList.add('state-transcribing');
-    titleEl.textContent = 'Transcribing…';
-    subEl.textContent = 'Converting your voice into words.';
-    avatarEl.textContent = '✍️';
-    waveform.classList.remove('active');
+  const rawStatus = (session.call_status || 'idle').toLowerCase();
+  if (rawStatus === 'transcribing') {
+    setCallState('understanding');
   } else if (rawStatus === 'thinking' || rawStatus === 'tool_running' || rawStatus === 'verifying') {
-    statusPill.classList.add('state-thinking');
-    statusPill.textContent = 'Checking…';
-    orb.classList.add('state-thinking');
-    titleEl.textContent = 'Checking…';
-    subEl.textContent = 'Searching verified sources and calculating answer.';
-    avatarEl.textContent = '🧠';
-    waveform.classList.remove('active');
+    setCallState('checking');
   } else if (rawStatus === 'speaking') {
-    statusPill.classList.add('state-speaking');
-    statusPill.textContent = 'Speaking…';
-    orb.classList.add('state-speaking');
-    titleEl.textContent = 'Speaking…';
-    subEl.textContent = 'BoloAI is speaking back in your language.';
-    avatarEl.textContent = '🔊';
-    waveform.classList.add('active');
+    setCallState('speaking');
   } else if (rawStatus === 'ended') {
-    statusPill.classList.add('state-ended');
-    statusPill.textContent = 'Call Ended';
-    orb.classList.add('state-ended');
-    titleEl.textContent = 'Call Ended';
-    subEl.textContent = 'Thank you for using BoloAI. Dial anytime.';
-    avatarEl.textContent = '📞';
-    waveform.classList.remove('active');
+    setCallState('error', 'Call Ended', 'Thank you for using BoloAI. Dial anytime.');
   } else {
-    statusPill.classList.add('state-idle');
-    statusPill.textContent = 'Connected';
-    orb.classList.add('state-idle');
-    titleEl.textContent = 'Connected';
-    subEl.textContent = 'BoloAI is ready. Say something or click an example.';
-    avatarEl.textContent = '🎧';
-    waveform.classList.remove('active');
+    setCallState('ready');
   }
 
-  document.getElementById('call-lang-badge').textContent = session.language === 'en-IN' ? 'English (India)' : 'Hindi / Hinglish';
+  const langBadge = document.getElementById('call-lang-badge');
+  if (langBadge) {
+    langBadge.textContent = currentLanguage === 'en-IN' ? 'English (India)' : 'Hindi / Hinglish';
+  }
 }
 
 function renderChat(history) {
   const container = document.getElementById('chat-container');
   if (!container) return;
+  window._chatMessages = history || [];
 
   if (!history || history.length === 0) {
     container.innerHTML = `
       <div style="color: var(--text-dim); text-align: center; padding: 40px 20px;">
         <span style="font-size: 32px; display: block; margin-bottom: 8px;">💬</span>
-        <p>No conversation yet. Speak into your phone or click any example below.</p>
+        <p>No conversation yet. Tap the microphone or click an example to begin.</p>
       </div>`;
     return;
   }
 
   let html = '';
-  history.forEach((msg) => {
+  history.forEach((msg, idx) => {
     const isUser = msg.role === 'user';
     html += `
       <div class="bubble ${isUser ? 'user' : 'assistant'}">
@@ -236,6 +303,7 @@ function renderChat(history) {
           <span>Voice Turn</span>
         </div>
         <div>${escapeHtml(msg.content)}</div>
+        ${!isUser ? `<button type="button" class="replay-btn" onclick="replayMessage(${idx})">🔊 Replay</button>` : ''}
       </div>`;
   });
 
@@ -667,29 +735,261 @@ async function uploadFileFromPage(e) {
   }
 }
 
-// 8. Interactive Actions
-async function sendMessage() {
-  const input = document.getElementById('user-input');
-  const text = input.value.trim();
+// 8. Interactive Voice & Actions
+function toggleMicrophone() {
+  // 1. Interruption / Barge-in: if BoloAI is speaking, cancel immediately!
+  if (isSpeaking || ('speechSynthesis' in window && window.speechSynthesis.speaking)) {
+    window.speechSynthesis.cancel();
+    isSpeaking = false;
+    showToast('BoloAI speech interrupted.');
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    const msg = 'Voice input is best supported in Chrome or Edge. You can still type your question.';
+    showToast(msg);
+    setCallState('error', 'Browser Notice', msg);
+    document.getElementById('user-input')?.focus();
+    return;
+  }
+
+  if (isListening) {
+    if (recognition) {
+      try { recognition.stop(); } catch (e) {}
+    }
+    return;
+  }
+
+  if (recognition) {
+    try { recognition.abort(); } catch (e) {}
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+  recognition.lang = currentLanguage;
+
+  let localFinal = '';
+  let localInterim = '';
+
+  recognition.onstart = () => {
+    isListening = true;
+    localFinal = '';
+    localInterim = '';
+    setCallState('listening');
+    const interimEl = document.getElementById('mic-interim-text');
+    if (interimEl) {
+      interimEl.textContent = 'Listening… speak clearly';
+      interimEl.style.display = 'block';
+    }
+  };
+
+  recognition.onresult = (event) => {
+    localInterim = '';
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      const res = event.results[i];
+      if (res.isFinal) {
+        localFinal += res[0].transcript;
+      } else {
+        localInterim += res[0].transcript;
+      }
+    }
+    const current = localFinal || localInterim;
+    const inputEl = document.getElementById('user-input');
+    if (inputEl && current) inputEl.value = current;
+
+    const interimEl = document.getElementById('mic-interim-text');
+    if (interimEl && current) {
+      interimEl.textContent = `“${current}”`;
+      interimEl.style.display = 'block';
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.warn('SpeechRecognition error:', event.error);
+    isListening = false;
+    const interimEl = document.getElementById('mic-interim-text');
+    if (interimEl) interimEl.style.display = 'none';
+
+    if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+      const msg = 'Microphone access allow kijiye aur phir dobara try karein.';
+      showToast(msg);
+      setCallState('error', 'Microphone Permission Required', msg);
+    } else if (event.error === 'no-speech') {
+      setCallState('ready');
+    } else {
+      setCallState('error', 'Voice Error', 'Voice input error occurred. Tap mic to retry.');
+    }
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    const interimEl = document.getElementById('mic-interim-text');
+    if (interimEl) {
+      setTimeout(() => { interimEl.style.display = 'none'; }, 1800);
+    }
+
+    const query = (localFinal || localInterim || document.getElementById('user-input')?.value || '').trim();
+    if (query) {
+      setCallState('understanding');
+      submitVoiceQuery(query);
+    } else {
+      setCallState('ready');
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch (err) {
+    console.warn('Recognition start error:', err);
+    setCallState('ready');
+  }
+}
+
+async function submitVoiceQuery(text) {
   if (!text) return;
-  input.value = '';
+  const inputEl = document.getElementById('user-input');
+  if (inputEl) inputEl.value = '';
 
   if (!activeSessionId) {
     await createNewSession();
   }
 
-  showToast('Sending to BoloAI Master Agent...');
+  setCallState('checking');
+  showToast('Sending to BoloAI Master Agent…');
+
   try {
     const res = await fetch('/agent/respond', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: activeSessionId, text }),
+      body: JSON.stringify({
+        session_id: activeSessionId,
+        text: text,
+      }),
     });
-    await res.json();
+    const data = await res.json();
+    latestAssistantAnswer = data.answer || '';
+
+    // Refresh conversation, results, and trace
     await refreshDashboard();
+
+    // Auto-speak response aloud
+    if (latestAssistantAnswer) {
+      speakText(latestAssistantAnswer, currentLanguage);
+    } else {
+      setCallState('ready');
+    }
   } catch (err) {
-    showToast('Failed to send turn');
+    console.error('Submit query error:', err);
+    showToast('Failed to contact BoloAI agent.');
+    setCallState('error', 'Connection Error', 'Could not reach server. Please retry.');
   }
+}
+
+function speakText(text, lang = 'hi-IN') {
+  if (!('speechSynthesis' in window)) {
+    console.warn('speechSynthesis not supported.');
+    setCallState('ready');
+    return;
+  }
+
+  // Cancel any prior speech (Interruption support)
+  window.speechSynthesis.cancel();
+  isSpeaking = true;
+
+  // Clean text for speech synthesis
+  const clean = text
+    .replace(/[*#`_~]/g, '')
+    .replace(/https?:\/\/\S+/g, 'link')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .trim();
+
+  const utterance = new SpeechSynthesisUtterance(clean);
+  utterance.lang = lang === 'en-IN' ? 'en-IN' : 'hi-IN';
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
+
+  loadVoices();
+  if (synthVoices && synthVoices.length > 0) {
+    let chosenVoice = null;
+    if (utterance.lang === 'hi-IN') {
+      chosenVoice = synthVoices.find(v => v.lang === 'hi-IN' || v.lang === 'hi_IN' || v.lang.startsWith('hi'))
+        || synthVoices.find(v => /hindi|swara|madhur|kalpana|hemant/i.test(v.name))
+        || synthVoices.find(v => v.lang === 'en-IN' || /india/i.test(v.name));
+    } else {
+      chosenVoice = synthVoices.find(v => v.lang === 'en-IN' || v.lang === 'en_IN' || /india|neerja|prabhat/i.test(v.name));
+    }
+    if (chosenVoice) {
+      utterance.voice = chosenVoice;
+    }
+  }
+
+  const hearBtn = document.getElementById('hear-answer-btn');
+
+  utterance.onstart = () => {
+    isSpeaking = true;
+    setCallState('speaking');
+    if (hearBtn) hearBtn.style.display = 'none';
+  };
+
+  utterance.onend = () => {
+    isSpeaking = false;
+    setCallState('ready');
+  };
+
+  utterance.onerror = (e) => {
+    console.warn('SpeechSynthesis error or autoplay block:', e);
+    isSpeaking = false;
+    setCallState('ready');
+    if (hearBtn) hearBtn.style.display = 'inline-flex';
+  };
+
+  try {
+    window.speechSynthesis.speak(utterance);
+    // Safety check for browser autoplay pause bug
+    setTimeout(() => {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }, 150);
+  } catch (err) {
+    console.warn('speakText error:', err);
+    isSpeaking = false;
+    setCallState('ready');
+    if (hearBtn) hearBtn.style.display = 'inline-flex';
+  }
+}
+
+function replayLatestAnswer() {
+  if (latestAssistantAnswer) {
+    speakText(latestAssistantAnswer, currentLanguage);
+  }
+}
+
+function replayMessage(idx) {
+  if (window._chatMessages && window._chatMessages[idx]) {
+    speakText(window._chatMessages[idx].content, currentLanguage);
+  }
+}
+
+function setLanguage(lang) {
+  currentLanguage = lang;
+  document.getElementById('lang-hi')?.classList.toggle('active', lang === 'hi-IN');
+  document.getElementById('lang-en')?.classList.toggle('active', lang === 'en-IN');
+  const badge = document.getElementById('call-lang-badge');
+  if (badge) {
+    badge.textContent = lang === 'en-IN' ? 'English (India)' : 'Hindi / Hinglish';
+  }
+  showToast(`Voice language set to: ${lang === 'en-IN' ? 'English' : 'Hindi / Hinglish'}`);
+}
+
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input ? input.value.trim() : '';
+  if (!text) return;
+  input.value = '';
+  await submitVoiceQuery(text);
 }
 
 async function runScenario(scenarioId) {
@@ -701,8 +1001,11 @@ async function runScenario(scenarioId) {
     connectLiveSocket(activeSessionId);
     await refreshDashboard();
     showToast(`Loaded: ${data.scenario}`);
-    // Scroll to live call section
     scrollToCall();
+    if (data.answer) {
+      latestAssistantAnswer = data.answer;
+      speakText(data.answer, currentLanguage);
+    }
   } catch (err) {
     showToast('Error running demo scenario');
   }

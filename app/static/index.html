@@ -233,12 +233,33 @@
           </div>
         </div>
 
-        <!-- Interactive Voice Simulator Bar -->
+        <!-- Primary Voice Microphone Action Area -->
+        <div class="primary-mic-wrapper">
+          <button id="main-mic-btn" class="big-mic-button state-ready" onclick="toggleMicrophone()" title="Tap to speak into microphone">
+            <span class="mic-icon" id="mic-icon">🎙️</span>
+            <span class="mic-pulse-ring"></span>
+          </button>
+          <div id="mic-status-label" class="mic-status-label">Tap and speak</div>
+          <div id="mic-interim-text" class="mic-interim-text" style="display: none;"></div>
+
+          <!-- Language Selector -->
+          <div class="lang-selector-group">
+            <button type="button" class="lang-pill active" id="lang-hi" onclick="setLanguage('hi-IN')">🇮🇳 Hindi / Hinglish</button>
+            <button type="button" class="lang-pill" id="lang-en" onclick="setLanguage('en-IN')">🇬🇧 English</button>
+          </div>
+
+          <!-- Fallback audio playback button (if browser blocks autoplay) -->
+          <button type="button" id="hear-answer-btn" class="hear-answer-btn" style="display: none;" onclick="replayLatestAnswer()">
+            🔊 Hear answer
+          </button>
+        </div>
+
+        <!-- Interactive Text / Simulator Bar -->
         <div class="call-simulator-bar">
           <div class="simulator-input-box">
-            <input id="user-input" type="text" placeholder="Type what caller says (e.g. 'Jaipur mein kal baarish hogi?', 'Scholarship schemes batao')..." />
+            <input id="user-input" type="text" placeholder="Or type your question here (e.g. 'Jaipur mein kal baarish hogi?')..." />
             <button class="btn btn-primary btn-round" onclick="sendMessage()">
-              <span>🎙️</span> Speak Turn
+              <span>➤</span> Send
             </button>
           </div>
 
@@ -507,6 +528,9 @@
           </div>
           <div id="status-sms" class="status-pill">
             <span class="status-dot"></span> <span class="status-label">SMS: SIMULATED</span>
+          </div>
+          <div id="status-browser-voice" class="status-pill ready">
+            <span class="status-dot"></span> <span class="status-label">Browser Voice: READY</span>
           </div>
         </div>
       </div>
