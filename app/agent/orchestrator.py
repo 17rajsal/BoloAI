@@ -102,6 +102,7 @@ class AgentOrchestrator:
         intent, goal, flags = detect_caller_intent(text, session.context)
         if goal:
             session.set_goal(goal)
+        session.update_context({"last_intent": intent})
 
         session.history.append({"role": "user", "content": text})
         add_event(session_id, "transcript.final", {"text": text})
@@ -109,7 +110,7 @@ class AgentOrchestrator:
         add_event(session_id, "agent.intent", {"intent": intent, "goal": goal, "detected_language": lang})
 
         # 4. Route: Live OpenAI API or Deterministic Slot-Filling Engine
-        if config.has_openai() and not config.DEMO_MODE:
+        if config.has_openai():
             prior_executions = set(session.action_executions)
             try:
                 return cls._respond_openai(session, text, intent, flags)
@@ -155,7 +156,11 @@ class AgentOrchestrator:
         last_verification: Optional[VerificationDetail] = None
         outcomes: List[Dict[str, Any]] = []
         failed_reads: List[str] = []
-        instructions = f"{SYSTEM_PROMPT}\n\nCURRENT SESSION CONTEXT:\n{json.dumps(session.context)}\nMaintain this context; do not re-ask known values."
+        instructions = (
+            f"{SYSTEM_PROMPT}\n\nCURRENT SESSION CONTEXT:\n{json.dumps(session.context)}\n"
+            "Maintain this context; do not re-ask known values. Provide clean spoken answers in 2 to 4 sentences "
+            "without markdown symbols (*, #, `), bullet lists, raw URLs, or JSON."
+        )
         messages = [{"role": m["role"], "content": m["content"]} for m in session.history[-10:]]
         add_event(session.id, "agent.plan", {"intent": intent, "orchestrator": "OpenAI Chat Completions",
                   "model": config.OPENAI_MODEL})
@@ -281,9 +286,12 @@ class AgentOrchestrator:
                     cond = res.get("condition", "saaf")
                     rain_today = res.get("rain_probability_today", 0)
                     rain_tmrw = res.get("tomorrow_rain_probability", rain_today)
+                    rain_parso = res.get("day_after_tomorrow_rain_probability", rain_tmrw)
                     loc = res.get("city", city)
 
-                    if "kal" in lowered or "tomorrow" in lowered or "कल" in text:
+                    if "parso" in lowered or "day after tomorrow" in lowered or "परसों" in text or "aur parso" in lowered:
+                        answer = f"{loc} mein parso baarish ki sambhavna lagbhag {rain_parso}% hai. Mausam aamtaur par {cond.lower()} rahega."
+                    elif "kal" in lowered or "tomorrow" in lowered or "कल" in text:
                         answer = f"{loc} mein kal baarish ki sambhavna lagbhag {rain_tmrw}% hai. Mausam {cond.lower()} rahega."
                     else:
                         answer = f"{loc} mein is waqt tapmaan {temp}°C hai aur mausam {cond.lower()} hai. Aaj baarish ki sambhavna {rain_today}% hai."
@@ -463,23 +471,42 @@ class AgentOrchestrator:
             verification = cls._record_verification(session, "search_web", res)
             last_verification = verification
 
-            if "पौधे" in text or "भोजन" in text or "photosynthesis" in lowered:
-                answer = "प्रकाश संश्लेषण (Photosynthesis): पौधे धूप, पानी और कार्बन डाइऑक्साइड की मदद से क्लोरोफिल द्वारा अपना भोजन बनाते हैं और ऑक्सीजन छोड़ते हैं।"
+            concept_type = flags.get("concept", "") or session.context.get("last_concept", "")
+            if "पौधे" in text or "भोजन" in text or "photosynthesis" in lowered or "प्रकाश संश्लेषण" in text or concept_type == "photosynthesis":
+                if any(w in lowered for w in ["example", "udaharan", "simple", "aur batao", "samjhao"]):
+                    answer = "Photosynthesis ka simple example: Jaise kitchen mein hum dhoop aur gas par khana banate hain, waise hi paudhe suraj ki dhoop aur paani use karke leaves mein bhojan banate hain aur taaza oxygen release karte hain."
+                else:
+                    answer = "प्रकाश संश्लेषण (Photosynthesis): पौधे धूप, पानी और कार्बन डाइऑक्साइड की मदद से क्लोरोफिल द्वारा अपना भोजन बनाते हैं और ऑक्सीजन छोड़ते हैं।"
+            elif concept_type == "cloud_computing" or "cloud computing" in lowered:
+                answer = "Cloud computing ka matlab hai internet ke zariye computer files, storage aur programs access karna, bina apne phone ya laptop par download kiye. Jaise Google Drive ya online email storage."
+            elif concept_type == "ai_agent" or "ai agent" in lowered or "agent kya hota" in lowered or "agent kya hai" in lowered:
+                answer = "AI agent ek intelligent computer program hota hai jo aapki baat samajh kar, situation ke hisaab se decision leta hai aur tools use karke aapka kaam poora karta hai — jaise BoloAI."
+            elif concept_type == "python_cpp" or ("python" in lowered and "c++" in lowered):
+                answer = "Python seekhne mein aasan aur rapid development ke liye use hoti hai, jabki C++ low-level system access aur high-speed execution performance ke liye popular hai."
             else:
                 top_hit = (res.get("results") or [{}])[0] if res.get("ok") is True else {}
-                answer = top_hit.get("snippet") or "Search seva se jankari nahi mil paayi. Is sawal ka verified jawab abhi nahi de sakta."
+                answer = top_hit.get("snippet") or "Is concept ke detailed answer ke liye mera AI reasoning service abhi connected nahi hai. Weather, schemes, verification aur demo services main abhi bhi use kar sakta hoon."
 
         # Case 8: General Knowledge
         elif intent == "GENERAL_INQUIRY":
             add_event(session.id, "agent.plan", {
                 "reason": "General knowledge query answered with foundational reference.",
             })
-            if "gravity" in lowered:
+            sub_intent = flags.get("sub_intent", "")
+            if sub_intent == "greeting" or any(w in lowered for w in ["hello", "hi", "namaste", "pranam", "kya haal", "kaise ho"]):
+                answer = "Namaste! Main BoloAI hoon. Aap weather, schemes, documents, general questions ya digital services ke baare mein pooch sakte hain. Main aapki kya sahayata kar sakta hoon?"
+            elif sub_intent == "capabilities" or any(w in lowered for w in ["kya kya kar sakte ho", "tum kya kar sakte ho", "aap kya kar sakte ho", "what can you do"]):
+                answer = "Main BoloAI hoon — Bharat ka voice-first digital assistant. Main live weather, government schemes, parcel tracking, documents verification aur aam sawalon ke seedhe jawab bina internet ke phone call par de sakta hoon."
+            elif sub_intent == "gratitude" or any(w in lowered for w in ["thank you", "thanks", "shukriya", "dhanyawad", "dhanyavad"]):
+                answer = "Khushi hui help karke! Aur kuch poochna ho to boliye."
+            elif sub_intent == "resume" or ("resume" in lowered and any(w in lowered for w in ["improve", "kaise", "banao", "tips", "better"])):
+                answer = "Resume behtar banane ke liye apne projects ke measurable outcomes likhein, target role se related skills highlight karein, aur layout clean aur 1 page mein rakhein."
+            elif "gravity" in lowered:
                 answer = "Gravity is a fundamental natural force by which objects with mass attract each other, keeping planets in orbit."
-            elif "2 plus 2" in lowered:
+            elif "2 plus 2" in lowered or "2+2" in lowered:
                 answer = "2 plus 2 ka jawab 4 hota hai."
             else:
-                answer = "Namaste! Main BoloAI hoon — aapka digital services voice gateway. Aap mausam, government schemes, parcel tracking ya kisi bhi seva ke baare mein pooch sakte hain."
+                answer = "Is question ke detailed answer ke liye mera AI reasoning service abhi connected nahi hai. Weather, schemes, verification aur demo services main abhi bhi use kar sakta hoon."
 
         else:
             add_event(session.id, "agent.plan", {

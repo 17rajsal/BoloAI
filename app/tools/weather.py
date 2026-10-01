@@ -38,7 +38,7 @@ def get_weather(city: str) -> Dict[str, Any]:
                     "longitude": lon,
                     "current": "temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m",
                     "daily": "temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code",
-                    "forecast_days": 2,
+                    "forecast_days": 3,
                     "timezone": "auto",
                 },
             )
@@ -67,6 +67,10 @@ def get_weather(city: str) -> Dict[str, Any]:
             country = hit.get("country", "India")
             full_loc = f"{location_name}, {admin1}" if admin1 else location_name
 
+            daily_rain_probs = daily.get("precipitation_probability_max", [])
+            tmrw_rain = daily_rain_probs[1] if len(daily_rain_probs) > 1 else rain_chance
+            parso_rain = daily_rain_probs[2] if len(daily_rain_probs) > 2 else tmrw_rain
+
             return {
                 "ok": True,
                 "source": "Open-Meteo Live API",
@@ -78,7 +82,8 @@ def get_weather(city: str) -> Dict[str, Any]:
                 "condition": condition,
                 "humidity": current.get("relative_humidity_2m"),
                 "rain_probability_today": rain_chance,
-                "tomorrow_rain_probability": daily.get("precipitation_probability_max", [None, None])[1] if len(daily.get("precipitation_probability_max", [])) > 1 else None,
+                "tomorrow_rain_probability": tmrw_rain,
+                "day_after_tomorrow_rain_probability": parso_rain,
                 "max_temp": daily.get("temperature_2m_max", [None])[0] if daily.get("temperature_2m_max") else None,
                 "min_temp": daily.get("temperature_2m_min", [None])[0] if daily.get("temperature_2m_min") else None,
             }

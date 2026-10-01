@@ -88,7 +88,7 @@ def health():
     sarvam_stt_status = "LIVE" if config.has_sarvam() else "MOCK"
     sarvam_tts_status = "LIVE" if config.has_sarvam() else "MOCK"
     speech_status = "LIVE" if config.has_sarvam() else "MOCK"
-    ai_status = "LIVE" if (config.has_openai() and not config.DEMO_MODE) else "FALLBACK"
+    ai_status = "LIVE" if config.has_openai() else "FALLBACK"
     
     if not config.has_tavily():
         search_status = "CURATED"
@@ -135,8 +135,8 @@ def health():
             "openai": {
                 "status": ai_status,
                 "configured": config.has_openai(),
-                "ready": config.has_openai() and not config.DEMO_MODE,
-                "mode": "live-api" if (config.has_openai() and not config.DEMO_MODE) else "deterministic-fallback",
+                "ready": config.has_openai(),
+                "mode": "live-api" if config.has_openai() else "deterministic-fallback",
                 "env_var": "OPENAI_API_KEY",
                 "model": config.OPENAI_MODEL,
             },

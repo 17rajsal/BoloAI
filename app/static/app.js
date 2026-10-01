@@ -856,6 +856,35 @@ async function submitVoiceQuery(text) {
     await createNewSession();
   }
 
+  // 1. Immediately render user bubble and temporary thinking bubble in chat
+  const chatContainer = document.getElementById('chat-container');
+  if (chatContainer) {
+    if (chatContainer.textContent.includes('No conversation yet') || !window._chatMessages || window._chatMessages.length === 0) {
+      chatContainer.innerHTML = '';
+    }
+    const userBubble = document.createElement('div');
+    userBubble.className = 'bubble user';
+    userBubble.innerHTML = `
+      <div class="bubble-sender">
+        <span>Caller</span>
+        <span>Voice Turn</span>
+      </div>
+      <div>${escapeHtml(text)}</div>`;
+    chatContainer.appendChild(userBubble);
+
+    const tempBubble = document.createElement('div');
+    tempBubble.id = 'temp-assistant-bubble';
+    tempBubble.className = 'bubble assistant temporary';
+    tempBubble.innerHTML = `
+      <div class="bubble-sender">
+        <span>BoloAI</span>
+        <span>Thinking…</span>
+      </div>
+      <div class="temp-thinking-text"><span class="pulse-dot"></span> Thinking…</div>`;
+    chatContainer.appendChild(tempBubble);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
   setCallState('checking');
   showToast('Sending to BoloAI Master Agent…');
 
@@ -882,6 +911,12 @@ async function submitVoiceQuery(text) {
     }
   } catch (err) {
     console.error('Submit query error:', err);
+    const tempBubble = document.getElementById('temp-assistant-bubble');
+    if (tempBubble) {
+      tempBubble.innerHTML = `
+        <div class="bubble-sender"><span>BoloAI</span><span>Error</span></div>
+        <div style="color: #EF4444;">Server se connection nahi ho paaya. Kripya thodi der baad dobara koshish karein.</div>`;
+    }
     showToast('Failed to contact BoloAI agent.');
     setCallState('error', 'Connection Error', 'Could not reach server. Please retry.');
   }

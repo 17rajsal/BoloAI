@@ -1122,6 +1122,39 @@ body {
 .bubble.user .bubble-sender { color: var(--primary-blue); }
 .bubble.assistant .bubble-sender { color: var(--primary-purple); }
 
+.bubble.temporary {
+  opacity: 0.9;
+  border-style: dashed;
+  animation: pulseBubble 2s ease-in-out infinite;
+}
+
+@keyframes pulseBubble {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.temp-thinking-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary-purple);
+  animation: dotPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
 /* ==========================================================================
    Section 4: What BoloAI Is Doing (Progress Timeline)
    ========================================================================== */
