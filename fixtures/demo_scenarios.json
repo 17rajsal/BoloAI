@@ -1,0 +1,31 @@
+{
+  "demo": true,
+  "notice": "Synthetic hackathon scenarios, not real provider outcomes. Income/year must be collected and retained.",
+  "scenarios": [
+    {
+      "id": "scholarship",
+      "title": "Scholarship discovery",
+      "turns": [
+        "Main UP mein BTech second year mein hoon. Mere liye scholarship hai?",
+        "Meri annual family income 180000 hai.",
+        "Mere liye scholarship check karo."
+      ],
+      "expected_context": {"state": "Uttar Pradesh", "course": "BTech", "year": 2, "income": 180000},
+      "expected": ["Ask only for missing income, not known state/course/year", "Use scheme tool after clarification", "Describe fictional results as demo, never verified official information"]
+    },
+    {
+      "id": "weather",
+      "title": "Jaipur weather",
+      "turns": ["Kal Jaipur mein baarish hogi?"],
+      "expected_context": {"city": "Jaipur"},
+      "expected": ["Dispatch current-information weather tool for Jaipur", "If unavailable, acknowledge inability to verify; do not substitute model memory"]
+    },
+    {
+      "id": "courier",
+      "title": "Courier complaint",
+      "turns": ["Mera parcel ABC123 kaha hai?", "Complaint register kar do."],
+      "expected_context": {"tracking_id": "ABC123"},
+      "expected": ["Track before complaint", "Capture complaint reference", "Record authorized action and tool call/result in session events", "Disclose simulated complaint"]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+.....................................XX................................  [100%]
+============================== warnings summary ===============================
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py:53
+  C:\Users\rajsa\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=================================== XPASSES ===================================
+=========================== short test summary info ===========================
+XPASS tests/test_agent_safety.py::test_failed_action_never_claimed_successful[send_sms-SMS kar do] - Failed action result still produces completed action and success claim
+XPASS tests/test_agent_safety.py::test_failed_action_never_claimed_successful[create_complaint-Complaint for ABC123 register kar do] - Failed action result still produces completed action and success claim
+69 passed, 2 xpassed, 1 warning in 1.84s

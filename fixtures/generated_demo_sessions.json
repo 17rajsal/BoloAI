@@ -1,0 +1,887 @@
+{
+  "demo": true,
+  "mode": "offline replay",
+  "notice": "Observed application output; expectations are not assertions of success.",
+  "sessions": [
+    {
+      "scenario": "scholarship",
+      "expectations": {
+        "id": "scholarship",
+        "title": "Scholarship discovery",
+        "turns": [
+          "Main UP mein BTech second year mein hoon. Mere liye scholarship hai?",
+          "Meri annual family income 180000 hai.",
+          "Mere liye scholarship check karo."
+        ],
+        "expected_context": {
+          "state": "Uttar Pradesh",
+          "course": "BTech",
+          "year": 2,
+          "income": 180000
+        },
+        "expected": [
+          "Ask only for missing income, not known state/course/year",
+          "Use scheme tool after clarification",
+          "Describe fictional results as demo, never verified official information"
+        ]
+      },
+      "session": {
+        "session_id": "demo-scholarship",
+        "caller": "+919000000001",
+        "language": "hi-IN",
+        "call_status": "speaking",
+        "context": {
+          "state": "Uttar Pradesh",
+          "course": "BTech",
+          "year": "Second",
+          "city": "Year",
+          "income": 180000.0
+        },
+        "current_goal": "Identify eligible government schemes in Uttar Pradesh",
+        "history": [
+          {
+            "role": "user",
+            "content": "Main UP mein BTech second year mein hoon. Mere liye scholarship hai?"
+          },
+          {
+            "role": "assistant",
+            "content": "Uttar Pradesh mein scholarship eligibility check karne ke liye kripya apna family income batayein?"
+          },
+          {
+            "role": "user",
+            "content": "Meri annual family income 180000 hai."
+          },
+          {
+            "role": "assistant",
+            "content": "Namaste! Main BoloAI hoon — aapka digital services voice gateway. Aap mausam, government schemes, parcel tracking ya kisi bhi seva ke baare mein pooch sakte hain."
+          },
+          {
+            "role": "user",
+            "content": "Mere liye scholarship check karo."
+          },
+          {
+            "role": "assistant",
+            "content": "Yeh curated demo scholarship dataset par aadharit hai: Uttar Pradesh mein BTech ke liye 'Fictional UP Engineering Study Grant' uplabdh hai. Aapki di gayi jankari ke anusaar aap match karte lagte hain. Final verification official portal par zaroori hai. Kya main official link SMS kar doon?"
+          }
+        ],
+        "tools_used": [],
+        "verification_results": [
+          {
+            "status": "UNVERIFIED",
+            "sources": [
+              {
+                "name": "Fictional Demo Education Office",
+                "scheme": "Fictional UP Engineering Study Grant",
+                "url": null,
+                "is_official": false,
+                "last_verified": null
+              }
+            ],
+            "reason": "Results originate from a demo/mock dataset for testing. Not official government records.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Demo / Unverified"
+          }
+        ],
+        "actions_completed": [],
+        "events_count": 19,
+        "created_at": "2026-10-01T09:00:00+05:30",
+        "updated_at": "2026-10-01T09:00:00+05:30"
+      },
+      "responses": [
+        {
+          "session_id": "demo-scholarship",
+          "answer": "Uttar Pradesh mein scholarship eligibility check karne ke liye kripya apna family income batayein?",
+          "language": "hi-IN",
+          "tools_used": [],
+          "verified": false,
+          "verification": null,
+          "action_completed": null,
+          "metadata": {
+            "mode": "deterministic-orchestrator"
+          }
+        },
+        {
+          "session_id": "demo-scholarship",
+          "answer": "Namaste! Main BoloAI hoon — aapka digital services voice gateway. Aap mausam, government schemes, parcel tracking ya kisi bhi seva ke baare mein pooch sakte hain.",
+          "language": "hi-IN",
+          "tools_used": [],
+          "verified": false,
+          "verification": null,
+          "action_completed": null,
+          "metadata": {
+            "mode": "deterministic-orchestrator"
+          }
+        },
+        {
+          "session_id": "demo-scholarship",
+          "answer": "Yeh curated demo scholarship dataset par aadharit hai: Uttar Pradesh mein BTech ke liye 'Fictional UP Engineering Study Grant' uplabdh hai. Aapki di gayi jankari ke anusaar aap match karte lagte hain. Final verification official portal par zaroori hai. Kya main official link SMS kar doon?",
+          "language": "hi-IN",
+          "tools_used": [
+            "find_schemes"
+          ],
+          "verified": false,
+          "verification": {
+            "status": "UNVERIFIED",
+            "sources": [
+              {
+                "name": "Fictional Demo Education Office",
+                "scheme": "Fictional UP Engineering Study Grant",
+                "url": null,
+                "is_official": false,
+                "last_verified": null
+              }
+            ],
+            "reason": "Results originate from a demo/mock dataset for testing. Not official government records.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Demo / Unverified"
+          },
+          "action_completed": null,
+          "metadata": {
+            "mode": "deterministic-orchestrator"
+          }
+        }
+      ],
+      "events": [
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "session.created",
+          "data": {
+            "caller": "+919000000001",
+            "language": "hi-IN"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "transcript.final",
+          "data": {
+            "text": "Main UP mein BTech second year mein hoon. Mere liye scholarship hai?"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.context_updated",
+          "data": {
+            "context": {
+              "state": "Uttar Pradesh",
+              "course": "BTech",
+              "year": "Second",
+              "city": "Year",
+              "income": 180000.0
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.intent",
+          "data": {
+            "intent": "SCHEME_SEARCH",
+            "goal": "Identify eligible government schemes in Uttar Pradesh",
+            "detected_language": "Hinglish"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.plan",
+          "data": {
+            "reason": "Eligibility criteria incomplete. Clarification needed from caller.",
+            "missing_slots": [
+              "family income"
+            ]
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "assistant.response",
+          "data": {
+            "text": "Uttar Pradesh mein scholarship eligibility check karne ke liye kripya apna family income batayein?"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "transcript.final",
+          "data": {
+            "text": "Meri annual family income 180000 hai."
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.context_updated",
+          "data": {
+            "context": {
+              "state": "Uttar Pradesh",
+              "course": "BTech",
+              "year": "Second",
+              "city": "Year",
+              "income": 180000.0
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.intent",
+          "data": {
+            "intent": "GENERAL_INQUIRY",
+            "goal": "Digital services assistance",
+            "detected_language": "Hinglish"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.plan",
+          "data": {
+            "reason": "General knowledge query answered with foundational reference."
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "assistant.response",
+          "data": {
+            "text": "Namaste! Main BoloAI hoon — aapka digital services voice gateway. Aap mausam, government schemes, parcel tracking ya kisi bhi seva ke baare mein pooch sakte hain."
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "transcript.final",
+          "data": {
+            "text": "Mere liye scholarship check karo."
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.context_updated",
+          "data": {
+            "context": {
+              "state": "Uttar Pradesh",
+              "course": "BTech",
+              "year": "Second",
+              "city": "Year",
+              "income": 180000.0
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.intent",
+          "data": {
+            "intent": "SCHEME_SEARCH",
+            "goal": "Identify eligible government schemes in Uttar Pradesh",
+            "detected_language": "Hinglish"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.plan",
+          "data": {
+            "reason": "Search government scheme records matching caller profile.",
+            "tool": "find_schemes",
+            "state": "Uttar Pradesh",
+            "course": "BTech",
+            "income": 180000.0
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "tool.call",
+          "data": {
+            "tool": "find_schemes",
+            "args": {
+              "state": "Uttar Pradesh",
+              "education": "BTech",
+              "income": 180000.0,
+              "category": "Higher Education"
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "tool.result",
+          "data": {
+            "tool": "find_schemes",
+            "result": {
+              "ok": true,
+              "demo": true,
+              "verified": false,
+              "matches": [
+                {
+                  "id": "DEMO-UP-ENGINEERING",
+                  "name": "Fictional UP Engineering Study Grant",
+                  "state": "Uttar Pradesh",
+                  "course": "BTech",
+                  "max_income": 250000,
+                  "benefit": "Illustrative annual study support of INR 12000",
+                  "authority": "Fictional Demo Education Office",
+                  "official_url": null,
+                  "eligibility": "Demo residents studying BTech; annual family income <= INR 250000",
+                  "source_type": "DEMO_DATA",
+                  "demo": true
+                }
+              ],
+              "notice": "Fictional demonstration only; no official eligibility or provider action."
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "verification.completed",
+          "data": {
+            "status": "UNVERIFIED",
+            "sources": [
+              {
+                "name": "Fictional Demo Education Office",
+                "scheme": "Fictional UP Engineering Study Grant",
+                "url": null,
+                "is_official": false,
+                "last_verified": null
+              }
+            ],
+            "reason": "Results originate from a demo/mock dataset for testing. Not official government records.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Demo / Unverified"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "assistant.response",
+          "data": {
+            "text": "Yeh curated demo scholarship dataset par aadharit hai: Uttar Pradesh mein BTech ke liye 'Fictional UP Engineering Study Grant' uplabdh hai. Aapki di gayi jankari ke anusaar aap match karte lagte hain. Final verification official portal par zaroori hai. Kya main official link SMS kar doon?"
+          }
+        }
+      ],
+      "trace_errors": []
+    },
+    {
+      "scenario": "weather",
+      "expectations": {
+        "id": "weather",
+        "title": "Jaipur weather",
+        "turns": [
+          "Kal Jaipur mein baarish hogi?"
+        ],
+        "expected_context": {
+          "city": "Jaipur"
+        },
+        "expected": [
+          "Dispatch current-information weather tool for Jaipur",
+          "If unavailable, acknowledge inability to verify; do not substitute model memory"
+        ]
+      },
+      "session": {
+        "session_id": "demo-weather",
+        "caller": "+919000000001",
+        "language": "hi-IN",
+        "call_status": "speaking",
+        "context": {
+          "course": "BA",
+          "city": "Jaipur"
+        },
+        "current_goal": "Check live weather forecast for Jaipur",
+        "history": [
+          {
+            "role": "user",
+            "content": "Kal Jaipur mein baarish hogi?"
+          },
+          {
+            "role": "assistant",
+            "content": "Maaf kijiye, mujhe Jaipur ka live mausam check karne mein dikkat aa rahi hai."
+          }
+        ],
+        "tools_used": [],
+        "verification_results": [
+          {
+            "status": "UNVERIFIED",
+            "sources": [],
+            "reason": "Could not retrieve live weather coordinates.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Uncertain"
+          }
+        ],
+        "actions_completed": [],
+        "events_count": 9,
+        "created_at": "2026-10-01T09:00:00+05:30",
+        "updated_at": "2026-10-01T09:00:00+05:30"
+      },
+      "responses": [
+        {
+          "session_id": "demo-weather",
+          "answer": "Maaf kijiye, mujhe Jaipur ka live mausam check karne mein dikkat aa rahi hai.",
+          "language": "hi-IN",
+          "tools_used": [
+            "get_weather"
+          ],
+          "verified": false,
+          "verification": {
+            "status": "UNVERIFIED",
+            "sources": [],
+            "reason": "Could not retrieve live weather coordinates.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Uncertain"
+          },
+          "action_completed": null,
+          "metadata": {
+            "mode": "deterministic-orchestrator"
+          }
+        }
+      ],
+      "events": [
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "session.created",
+          "data": {
+            "caller": "+919000000001",
+            "language": "hi-IN"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "transcript.final",
+          "data": {
+            "text": "Kal Jaipur mein baarish hogi?"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.context_updated",
+          "data": {
+            "context": {
+              "course": "BA",
+              "city": "Jaipur"
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.intent",
+          "data": {
+            "intent": "WEATHER_QUERY",
+            "goal": "Check live weather forecast for Jaipur",
+            "detected_language": "Hinglish"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.plan",
+          "data": {
+            "reason": "Current meteorological queries require real-time sensor data.",
+            "tool": "get_weather",
+            "city": "Jaipur"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "tool.call",
+          "data": {
+            "tool": "get_weather",
+            "args": {
+              "city": "Jaipur"
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "tool.result",
+          "data": {
+            "tool": "get_weather",
+            "result": {
+              "ok": false,
+              "error": "Offline evaluation: live provider unavailable"
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "verification.completed",
+          "data": {
+            "status": "UNVERIFIED",
+            "sources": [],
+            "reason": "Could not retrieve live weather coordinates.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Uncertain"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "assistant.response",
+          "data": {
+            "text": "Maaf kijiye, mujhe Jaipur ka live mausam check karne mein dikkat aa rahi hai."
+          }
+        }
+      ],
+      "trace_errors": []
+    },
+    {
+      "scenario": "courier",
+      "expectations": {
+        "id": "courier",
+        "title": "Courier complaint",
+        "turns": [
+          "Mera parcel ABC123 kaha hai?",
+          "Complaint register kar do."
+        ],
+        "expected_context": {
+          "tracking_id": "ABC123"
+        },
+        "expected": [
+          "Track before complaint",
+          "Capture complaint reference",
+          "Record authorized action and tool call/result in session events",
+          "Disclose simulated complaint"
+        ]
+      },
+      "session": {
+        "session_id": "demo-courier",
+        "caller": "+919000000001",
+        "language": "hi-IN",
+        "call_status": "speaking",
+        "context": {
+          "tracking_id": "ABC123"
+        },
+        "current_goal": "File official service grievance for delayed courier",
+        "history": [
+          {
+            "role": "user",
+            "content": "Mera parcel ABC123 kaha hai?"
+          },
+          {
+            "role": "assistant",
+            "content": "Yeh simulated demo parcel data hai: Parcel ABC123 abhi Ghaziabad Hub par delayed hai. Expected delivery: 2026-10-02T18:00:00+05:30. Kya aap complaint darj karwana chahte hain?"
+          },
+          {
+            "role": "user",
+            "content": "Complaint register kar do."
+          },
+          {
+            "role": "assistant",
+            "content": "Aapki complaint simulated demo system mein register ho gayi hai. Reference ID DEMO-CMP-C1D184C6561A generate hua hai."
+          }
+        ],
+        "tools_used": [],
+        "verification_results": [
+          {
+            "status": "PARTIALLY_VERIFIED",
+            "sources": [
+              {
+                "name": "Carrier",
+                "source": "Logistics Hub",
+                "url": "https://example.com/logistics",
+                "is_official": false
+              }
+            ],
+            "reason": "Status retrieved from logistics tracking endpoint. Package delayed.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Medium (Simulated Carrier)"
+          },
+          {
+            "status": "VERIFIED_OFFICIAL",
+            "sources": [
+              {
+                "name": "Grievance Redressal Dispatcher",
+                "ref": "DEMO-CMP-C1D184C6561A"
+              }
+            ],
+            "reason": "Action confirmed and reference ticket DEMO-CMP-C1D184C6561A logged.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Action Confirmed"
+          }
+        ],
+        "actions_completed": [
+          {
+            "ok": true,
+            "success": true,
+            "demo": true,
+            "simulated": true,
+            "action_type": "REGISTER_COMPLAINT",
+            "reference_id": "DEMO-CMP-C1D184C6561A",
+            "tracking_id": "ABC123",
+            "reason": "Operational delay",
+            "status": "SIMULATED_REGISTERED",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "notice": "Fictional demonstration only; no official eligibility or provider action."
+          }
+        ],
+        "events_count": 20,
+        "created_at": "2026-10-01T09:00:00+05:30",
+        "updated_at": "2026-10-01T09:00:00+05:30"
+      },
+      "responses": [
+        {
+          "session_id": "demo-courier",
+          "answer": "Yeh simulated demo parcel data hai: Parcel ABC123 abhi Ghaziabad Hub par delayed hai. Expected delivery: 2026-10-02T18:00:00+05:30. Kya aap complaint darj karwana chahte hain?",
+          "language": "hi-IN",
+          "tools_used": [
+            "track_courier"
+          ],
+          "verified": false,
+          "verification": {
+            "status": "PARTIALLY_VERIFIED",
+            "sources": [
+              {
+                "name": "Carrier",
+                "source": "Logistics Hub",
+                "url": "https://example.com/logistics",
+                "is_official": false
+              }
+            ],
+            "reason": "Status retrieved from logistics tracking endpoint. Package delayed.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Medium (Simulated Carrier)"
+          },
+          "action_completed": null,
+          "metadata": {
+            "mode": "deterministic-orchestrator"
+          }
+        },
+        {
+          "session_id": "demo-courier",
+          "answer": "Aapki complaint simulated demo system mein register ho gayi hai. Reference ID DEMO-CMP-C1D184C6561A generate hua hai.",
+          "language": "hi-IN",
+          "tools_used": [
+            "create_complaint"
+          ],
+          "verified": false,
+          "verification": {
+            "status": "VERIFIED_OFFICIAL",
+            "sources": [
+              {
+                "name": "Grievance Redressal Dispatcher",
+                "ref": "DEMO-CMP-C1D184C6561A"
+              }
+            ],
+            "reason": "Action confirmed and reference ticket DEMO-CMP-C1D184C6561A logged.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Action Confirmed"
+          },
+          "action_completed": {
+            "ok": true,
+            "success": true,
+            "demo": true,
+            "simulated": true,
+            "action_type": "REGISTER_COMPLAINT",
+            "reference_id": "DEMO-CMP-C1D184C6561A",
+            "tracking_id": "ABC123",
+            "reason": "Operational delay",
+            "status": "SIMULATED_REGISTERED",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "notice": "Fictional demonstration only; no official eligibility or provider action."
+          },
+          "metadata": {
+            "mode": "deterministic-orchestrator"
+          }
+        }
+      ],
+      "events": [
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "session.created",
+          "data": {
+            "caller": "+919000000001",
+            "language": "hi-IN"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "transcript.final",
+          "data": {
+            "text": "Mera parcel ABC123 kaha hai?"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.context_updated",
+          "data": {
+            "context": {
+              "tracking_id": "ABC123"
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.intent",
+          "data": {
+            "intent": "COURIER_TRACKING",
+            "goal": "Track shipping status for parcel ABC123",
+            "detected_language": "Hinglish"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.plan",
+          "data": {
+            "reason": "Caller requested shipment location and delivery status.",
+            "tool": "track_courier",
+            "tracking_id": "ABC123"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "tool.call",
+          "data": {
+            "tool": "track_courier",
+            "args": {
+              "tracking_id": "ABC123"
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "tool.result",
+          "data": {
+            "tool": "track_courier",
+            "result": {
+              "ok": true,
+              "demo": true,
+              "simulated": true,
+              "tracking_id": "ABC123",
+              "status": "delayed",
+              "current_hub": "Ghaziabad Hub",
+              "current_location": "Ghaziabad Hub",
+              "reason": "operational delay",
+              "expected_delivery": "2026-10-02T18:00:00+05:30",
+              "last_update": "2026-10-01T09:00:00+05:30",
+              "notice": "Fictional demonstration only; no official eligibility or provider action."
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "verification.completed",
+          "data": {
+            "status": "PARTIALLY_VERIFIED",
+            "sources": [
+              {
+                "name": "Carrier",
+                "source": "Logistics Hub",
+                "url": "https://example.com/logistics",
+                "is_official": false
+              }
+            ],
+            "reason": "Status retrieved from logistics tracking endpoint. Package delayed.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Medium (Simulated Carrier)"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "assistant.response",
+          "data": {
+            "text": "Yeh simulated demo parcel data hai: Parcel ABC123 abhi Ghaziabad Hub par delayed hai. Expected delivery: 2026-10-02T18:00:00+05:30. Kya aap complaint darj karwana chahte hain?"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "transcript.final",
+          "data": {
+            "text": "Complaint register kar do."
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.context_updated",
+          "data": {
+            "context": {
+              "tracking_id": "ABC123"
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.intent",
+          "data": {
+            "intent": "FILE_COMPLAINT",
+            "goal": "File official service grievance for delayed courier",
+            "detected_language": "Hinglish"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "agent.plan",
+          "data": {
+            "reason": "Caller confirmed complaint registration for delayed delivery.",
+            "tool": "create_complaint",
+            "tracking_id": "ABC123"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "action.requested",
+          "data": {
+            "action": "create_complaint",
+            "tracking_id": "ABC123"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "action.confirmed",
+          "data": {
+            "action": "create_complaint",
+            "confirmed_by": "caller_voice_instruction"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "tool.call",
+          "data": {
+            "tool": "create_complaint",
+            "args": {
+              "tracking_id": "ABC123",
+              "reason": "Operational delay",
+              "caller_phone": "+919000000001"
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "tool.result",
+          "data": {
+            "tool": "create_complaint",
+            "result": {
+              "ok": true,
+              "success": true,
+              "demo": true,
+              "simulated": true,
+              "action_type": "REGISTER_COMPLAINT",
+              "reference_id": "DEMO-CMP-C1D184C6561A",
+              "tracking_id": "ABC123",
+              "reason": "Operational delay",
+              "status": "SIMULATED_REGISTERED",
+              "timestamp": "2026-10-01T09:00:00+05:30",
+              "notice": "Fictional demonstration only; no official eligibility or provider action."
+            }
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "verification.completed",
+          "data": {
+            "status": "VERIFIED_OFFICIAL",
+            "sources": [
+              {
+                "name": "Grievance Redressal Dispatcher",
+                "ref": "DEMO-CMP-C1D184C6561A"
+              }
+            ],
+            "reason": "Action confirmed and reference ticket DEMO-CMP-C1D184C6561A logged.",
+            "timestamp": "2026-10-01T09:00:00+05:30",
+            "confidence_label": "Action Confirmed"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "action.completed",
+          "data": {
+            "action": "create_complaint",
+            "reference_id": "DEMO-CMP-C1D184C6561A",
+            "status": "SIMULATED_REGISTERED"
+          }
+        },
+        {
+          "ts": "2026-10-01T09:00:00+05:30",
+          "type": "assistant.response",
+          "data": {
+            "text": "Aapki complaint simulated demo system mein register ho gayi hai. Reference ID DEMO-CMP-C1D184C6561A generate hua hai."
+          }
+        }
+      ],
+      "trace_errors": []
+    }
+  ]
+}
